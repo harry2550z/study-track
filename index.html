@@ -4,723 +4,623 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Study Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --yt-red: #ff0033;
-    --yt-gradient: linear-gradient(45deg, #ff0033, #ff00aa);
-    --surface: #212121;
-    --surface2: #272727;
-    --bg: #0f0f0f;
-    --bg2: #1a1a1a;
-    --border: #3f3f3f;
-    --text: #f1f1f1;
-    --text2: #aaaaaa;
-    --text3: #717171;
-    --radius: 12px;
-    --radius-sm: 8px;
-    --transition: all 0.2s cubic-bezier(.4,0,.2,1);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; }
-  body { background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; min-height: 100vh; -webkit-font-smoothing: antialiased; }
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  /* APP BAR */
-  .app-bar {
-    background: var(--bg); border-bottom: 1px solid var(--border);
-    padding: 0 16px; display: flex; align-items: center;
-    height: 56px; gap: 10px; position: sticky; top: 0; z-index: 10;
-  }
-  .app-bar-brand { display: flex; align-items: center; gap: 8px; flex: 1; }
-  .app-bar-logo {
-    background: var(--yt-gradient); border-radius: 7px;
-    width: 30px; height: 30px; display: flex; align-items: center;
-    justify-content: center; font-size: 15px; flex-shrink: 0;
-  }
-  .app-bar-title { font-size: 16px; font-weight: 700; color: var(--text); }
-  .icon-chip {
-    display: flex; align-items: center; justify-content: center;
-    width: 36px; height: 36px; border-radius: 50%;
-    background: var(--surface2); border: 1px solid var(--border);
-    cursor: pointer; color: var(--text2); transition: var(--transition);
-  }
-  .icon-chip:hover { background: #333; border-color: #555; color: var(--text); }
-  .icon-chip svg { width: 18px; height: 18px; }
-
-  /* CONTENT */
-  .content { max-width: 560px; margin: 0 auto; padding: 20px 16px 80px; }
-
-  /* STATS */
-  .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-  .stat-card { background: var(--surface); border-radius: var(--radius); padding: 14px 12px; border: 1px solid var(--border); transition: var(--transition); }
-  .stat-card:hover { border-color: #555; background: var(--surface2); }
-  .stat-label { font-size: 10px; color: var(--text3); font-weight: 500; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
-  .stat-value { font-size: 14px; font-weight: 700; font-family: 'Roboto Mono', monospace; background: var(--yt-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.5px; }
-
-  /* NAV */
-  .nav-tabs { background: var(--surface); border-radius: 24px; padding: 4px; display: flex; gap: 2px; margin-bottom: 20px; border: 1px solid var(--border); }
-  .tab-btn { flex: 1; background: none; border: none; cursor: pointer; font-family: 'Roboto', sans-serif; font-size: 13px; font-weight: 500; padding: 10px 8px; border-radius: 20px; color: var(--text3); transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 6px; }
-  .tab-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
-  .tab-btn.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-  .tab-btn:hover:not(.active) { color: var(--text2); background: rgba(255,255,255,0.05); }
-
-  /* VIEWS */
-  .view { display: none; }
-  .view.active { display: block; }
-
-  /* SUBJECTS */
-  .section-title { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.6px; margin-bottom: 12px; text-transform: uppercase; }
-  .subject-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
-  .subj-chip { display: flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; font-family: 'Roboto', sans-serif; font-size: 13px; font-weight: 500; color: var(--text3); transition: var(--transition); }
-  .subj-chip:hover { border-color: #666; color: var(--text); }
-  .subj-chip .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .subj-chip.selected { color: #fff; border-color: transparent; box-shadow: 0 2px 12px rgba(0,0,0,0.5); }
-
-  /* TIMER */
-  .timer-card { background: var(--surface); border-radius: 20px; padding: 44px 24px; text-align: center; border: 1px solid var(--border); margin-bottom: 20px; }
-  .timer-display { font-family: 'Roboto Mono', monospace; font-size: 58px; font-weight: 300; color: var(--text); letter-spacing: -2px; line-height: 1; margin-bottom: 8px; transition: all 0.4s; }
-  .timer-display.running { background: var(--yt-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-  .active-label { font-size: 13px; color: var(--text3); margin-bottom: 32px; min-height: 20px; font-weight: 500; }
-  .active-label span { font-weight: 600; color: var(--text2); }
-  .fab { width: 68px; height: 68px; border-radius: 50%; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: var(--transition); }
-  .fab svg { width: 32px; height: 32px; }
-  .fab.start { background: var(--yt-gradient); color: #fff; box-shadow: 0 4px 18px rgba(255,0,51,0.45); }
-  .fab.start:hover { transform: scale(1.08); }
-  .fab.stop { background: #272727; color: #ff4444; border: 2px solid #ff4444; }
-  .fab.stop:hover { background: #3a1a1a; transform: scale(1.06); }
-  .fab:active { transform: scale(0.96) !important; }
-
-  /* BLOCKS */
-  .blocks-card { background: var(--surface); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); margin-bottom: 16px; }
-  .blocks-header { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-  .blocks-title { font-size: 13px; font-weight: 600; color: var(--text); }
-  .blocks-total { font-family: 'Roboto Mono', monospace; font-size: 13px; font-weight: 600; background: var(--yt-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-  .block-item { padding: 13px 18px; display: flex; align-items: flex-start; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; flex-direction: column; }
-  .block-item:last-child { border-bottom: none; }
-  .block-item:hover { background: rgba(255,255,255,0.04); }
-  .block-item-top { display: flex; align-items: center; gap: 12px; width: 100%; }
-  .block-color { width: 3px; height: 36px; border-radius: 2px; flex-shrink: 0; }
-  .block-info { flex: 1; }
-  .block-subj { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
-  .block-time { font-size: 11px; color: var(--text3); }
-  .block-dur { font-family: 'Roboto Mono', monospace; font-size: 13px; font-weight: 600; color: var(--text2); }
-  .icon-btn { background: none; border: none; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text3); transition: var(--transition); flex-shrink: 0; }
-  .icon-btn:hover { background: rgba(255,68,68,0.15); color: #ff4444; }
-  .icon-btn svg { width: 18px; height: 18px; }
-
-  /* NOTES */
-  .notes-area { width: 100%; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: 'Roboto', sans-serif; font-size: 12px; line-height: 1.6; padding: 8px 12px; resize: none; outline: none; transition: border-color 0.2s; min-height: 36px; max-height: 120px; overflow-y: auto; }
-  .notes-area:focus { border-color: rgba(255,0,51,0.5); }
-  .notes-area::placeholder { color: var(--text3); }
-  .notes-display { font-size: 12px; color: var(--text2); line-height: 1.6; padding: 4px 0 0 3px; cursor: pointer; border-bottom: 1px dashed transparent; transition: border-color 0.2s; word-break: break-word; }
-  .notes-display:hover { border-color: var(--border); }
-  .notes-display.empty { color: var(--text3); font-style: italic; }
-  .notes-row { width: 100%; padding-left: 15px; /* align with content after color bar + gap */ }
-
-  /* LOG */
-  .log-group { margin-bottom: 16px; }
-  .log-date-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 4px 10px; }
-  .log-date { font-size: 13px; font-weight: 600; color: var(--text2); }
-  .log-date-total { font-family: 'Roboto Mono', monospace; font-size: 11px; font-weight: 600; background: var(--yt-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; padding: 3px 10px; border-radius: 12px; border: 1px solid rgba(255,0,51,0.3); white-space: nowrap; }
-
-  /* STATS VIEW */
-  .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-  .metric-card { background: var(--surface); border-radius: var(--radius); padding: 18px 16px; border: 1px solid var(--border); transition: var(--transition); }
-  .metric-card:hover { background: var(--surface2); border-color: #555; }
-  .metric-icon { font-size: 20px; margin-bottom: 10px; display: block; }
-  .metric-label { font-size: 11px; color: var(--text3); font-weight: 500; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
-  .metric-val { font-size: 22px; font-weight: 700; color: var(--text); font-family: 'Roboto Mono', monospace; }
-  .chart-card { background: var(--surface); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); margin-bottom: 16px; }
-  .chart-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 18px; }
-  .subj-bar-row { margin-bottom: 14px; }
-  .subj-bar-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
-  .subj-bar-name { font-size: 13px; font-weight: 500; color: var(--text); display: flex; align-items: center; gap: 8px; }
-  .subj-bar-name .dot { width: 8px; height: 8px; border-radius: 50%; }
-  .subj-bar-val { font-size: 12px; font-weight: 600; color: var(--text3); font-family: 'Roboto Mono', monospace; }
-  .bar-track { height: 4px; background: var(--bg2); border-radius: 2px; overflow: hidden; }
-  .bar-fill { height: 4px; border-radius: 2px; transition: width 0.9s cubic-bezier(.23,1,.32,1); }
-
-  /* WEEK BAR CHART */
-  .week-chart-wrap { position: relative; display: flex; gap: 0; }
-  .week-y-axis { display: flex; flex-direction: column-reverse; justify-content: space-between; padding-right: 8px; padding-bottom: 22px; flex-shrink: 0; }
-  .week-y-label { font-size: 9px; color: var(--text3); font-family: 'Roboto Mono', monospace; text-align: right; height: 0; display: flex; align-items: center; white-space: nowrap; }
-  .week-bars-area { flex: 1; display: flex; flex-direction: column; }
-  .week-grid-lines { position: absolute; left: 32px; right: 0; top: 0; pointer-events: none; }
-  .week-grid-line { position: absolute; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.05); }
-  .week-bars-row { flex: 1; display: flex; align-items: flex-end; gap: 6px; position: relative; }
-  .week-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0; }
-  .week-bar-stack { width: 100%; display: flex; flex-direction: column-reverse; border-radius: 6px 6px 0 0; overflow: hidden; cursor: pointer; transition: opacity 0.15s; min-height: 2px; }
-  .week-bar-stack:hover { opacity: 0.85; }
-  .week-bar-seg { width: 100%; transition: height 0.7s cubic-bezier(.23,1,.32,1); }
-  .week-day-label { font-size: 10px; color: var(--text3); font-weight: 500; margin-top: 6px; text-align: center; }
-  .week-day-total { font-size: 9px; color: var(--text3); font-family: 'Roboto Mono', monospace; margin-top: 2px; text-align: center; }
-  .week-chart-legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 14px; }
-  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text3); }
-  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-
-  /* HEATMAP */
-  .heatmap { display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; }
-  .heat-cell { text-align: center; }
-  .heat-block { height: 38px; border-radius: 8px; background: var(--bg2); margin-bottom: 5px; border: 1px solid var(--border); transition: all 0.3s; }
-  .heat-day { font-size: 10px; color: var(--text3); font-weight: 500; }
-
-  /* BACKUP VIEW */
-  .backup-card { background: var(--surface); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); margin-bottom: 16px; }
-  .backup-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
-  .backup-desc { font-size: 12px; color: var(--text3); margin-bottom: 16px; line-height: 1.6; }
-  .backup-btn { width: 100%; padding: 13px; border-radius: var(--radius-sm); border: none; cursor: pointer; font-family: 'Roboto', sans-serif; font-size: 14px; font-weight: 600; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px; }
-  .backup-btn svg { width: 18px; height: 18px; }
-  .backup-btn.export { background: var(--yt-gradient); color: #fff; box-shadow: 0 4px 14px rgba(255,0,51,0.3); }
-  .backup-btn.export:hover { opacity: 0.9; transform: translateY(-1px); }
-  .backup-btn.import { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-  .backup-btn.import:hover { background: #333; border-color: #555; }
-  .backup-btn.danger { background: rgba(255,68,68,0.1); color: #ff4444; border: 1px solid rgba(255,68,68,0.3); margin-top: 8px; }
-  .backup-btn.danger:hover { background: rgba(255,68,68,0.2); }
-  .backup-info { font-size: 11px; color: var(--text3); margin-top: 10px; text-align: center; line-height: 1.5; }
-  .backup-info strong { color: var(--text2); }
-
-  /* TOAST */
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); color: var(--text); border: 1px solid var(--border); padding: 12px 20px; border-radius: 24px; font-size: 13px; font-weight: 500; z-index: 999; transition: transform 0.3s cubic-bezier(.23,1,.32,1); white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 8px; }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.success { border-color: rgba(76,175,130,0.4); }
-  .toast.error { border-color: rgba(255,68,68,0.4); }
-
-  /* EMPTY */
-  .empty-state { text-align: center; padding: 48px 24px; color: var(--text3); font-size: 14px; line-height: 2; }
-  .empty-icon { font-size: 40px; display: block; margin-bottom: 8px; opacity: 0.4; }
-  .scrollable { max-height: 460px; overflow-y: auto; }
-
-  @media(max-width:480px) {
-    .timer-display { font-size: 44px; }
-    .stats-row { gap: 8px; }
-    .stat-value { font-size: 13px; }
-  }
+:root {
+  --red: #ff0033;
+  --red2: #ff00aa;
+  --grad: linear-gradient(135deg, #ff0033, #ff00aa);
+  --bg: #0a0a0a;
+  --bg2: #111111;
+  --bg3: #161616;
+  --surface: #1c1c1c;
+  --surface2: #222222;
+  --border: #2a2a2a;
+  --border2: #333;
+  --text: #f0f0f0;
+  --text2: #999;
+  --text3: #555;
+  --radius: 10px;
+  --sidebar: 220px;
+  --tr: all 0.18s ease;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;display:flex;height:100vh;overflow:hidden;font-size:14px;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+.sidebar{width:var(--sidebar);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;}
+.sidebar-logo{padding:18px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.logo-icon{width:30px;height:30px;border-radius:8px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.logo-title{font-size:15px;font-weight:700;letter-spacing:-0.3px;}
+.logo-sub{font-size:10px;color:var(--text3);font-weight:500;}
+.sidebar-stats{padding:14px 12px;border-bottom:1px solid var(--border);}
+.sstat{margin-bottom:10px;}
+.sstat:last-child{margin-bottom:0;}
+.sstat-label{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
+.sstat-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sstat-val.sm{font-size:13px;}
+.sidebar-nav{padding:10px 8px;flex:1;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;transition:var(--tr);margin-bottom:2px;border:none;background:none;width:100%;text-align:left;}
+.nav-item svg{width:16px;height:16px;flex-shrink:0;}
+.nav-item:hover{background:var(--surface);color:var(--text);}
+.nav-item.active{background:var(--surface2);color:var(--text);border:1px solid var(--border2);}
+.nav-sep{height:1px;background:var(--border);margin:8px 4px;}
+.nav-label{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;padding:6px 10px 4px;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{height:48px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;}
+.topbar-title{font-size:14px;font-weight:600;flex:1;}
+.topbar-tag{font-size:11px;color:var(--text3);background:var(--surface);border:1px solid var(--border);padding:3px 10px;border-radius:20px;}
+.content{flex:1;overflow-y:auto;padding:20px 24px;}
+.view{display:none;}
+.view.active{display:block;}
+.timer-layout{display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start;}
+.timer-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px 28px;text-align:center;}
+.timer-display{font-family:'JetBrains Mono',monospace;font-size:52px;font-weight:300;letter-spacing:-2px;line-height:1;margin-bottom:6px;transition:all 0.3s;}
+.timer-display.running{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.timer-active-label{font-size:12px;color:var(--text3);margin-bottom:6px;min-height:18px;}
+.timer-active-label span{color:var(--text2);font-weight:600;}
+.timer-chapter-label{font-size:11px;color:var(--text3);margin-bottom:24px;min-height:16px;font-style:italic;}
+.fab{width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:var(--tr);}
+.fab svg{width:26px;height:26px;}
+.fab.start{background:var(--grad);color:#fff;box-shadow:0 4px 20px rgba(255,0,51,0.35);}
+.fab.start:hover{transform:scale(1.07);}
+.fab.stop{background:#1c1c1c;color:#ff4444;border:2px solid #ff4444;}
+.fab.stop:hover{background:#2a1111;}
+.fab:active{transform:scale(0.95)!important;}
+.sel-panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;}
+.sel-section{margin-bottom:16px;}
+.sel-section:last-child{margin-bottom:0;}
+.sel-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+.subj-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.subj-btn{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);cursor:pointer;font-size:12px;font-weight:500;color:var(--text2);transition:var(--tr);font-family:'Inter',sans-serif;text-align:left;}
+.subj-btn .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.subj-btn:hover{border-color:#555;color:var(--text);}
+.subj-btn.selected{color:#fff;border-color:transparent;box-shadow:0 2px 10px rgba(0,0,0,0.5);}
+.sel-row{display:flex;gap:6px;align-items:flex-start;margin-bottom:6px;}
+.sel-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:8px 10px;outline:none;transition:border-color 0.2s;}
+.sel-input:focus{border-color:rgba(255,0,51,0.5);}
+.sel-input option{background:var(--bg2);}
+.icon-btn-sm{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text3);cursor:pointer;width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:var(--tr);}
+.icon-btn-sm:hover{border-color:#555;color:var(--text);}
+.icon-btn-sm svg{width:15px;height:15px;}
+.add-form{display:none;gap:6px;margin-top:6px;}
+.add-form.open{display:flex;}
+.add-input{flex:1;background:var(--bg3);border:1px solid rgba(255,0,51,0.4);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:7px 10px;outline:none;}
+.btn-xs{padding:6px 12px;border-radius:8px;border:none;cursor:pointer;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;transition:var(--tr);}
+.btn-xs.primary{background:var(--grad);color:#fff;}
+.btn-xs.ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border);}
+.btn-xs:hover{opacity:0.85;}
+.sessions-panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.panel-header{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
+.panel-title{font-size:13px;font-weight:600;}
+.panel-total{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.session-row{padding:11px 16px;display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid rgba(255,255,255,0.03);transition:background 0.15s;flex-direction:column;}
+.session-row:last-child{border-bottom:none;}
+.session-row:hover{background:rgba(255,255,255,0.03);}
+.session-top{display:flex;align-items:center;gap:10px;width:100%;}
+.session-bar{width:3px;height:34px;border-radius:2px;flex-shrink:0;}
+.session-info{flex:1;}
+.session-subj{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;display:flex;align-items:center;gap:6px;}
+.session-chapter-tag{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500;}
+.session-subtopic-tag{font-size:10px;color:var(--text3);padding:2px 7px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;font-weight:500;}
+.session-time{font-size:10px;color:var(--text3);}
+.session-dur{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--text2);}
+.del-btn{background:none;border:none;cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:var(--tr);flex-shrink:0;}
+.del-btn:hover{background:rgba(255,68,68,0.15);color:#ff4444;}
+.del-btn svg{width:16px;height:16px;}
+.notes-area{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'Inter',sans-serif;font-size:11px;line-height:1.6;padding:6px 10px;resize:none;outline:none;transition:border-color 0.2s;min-height:32px;max-height:90px;overflow-y:auto;}
+.notes-area:focus{border-color:rgba(255,0,51,0.4);}
+.notes-disp{font-size:11px;color:var(--text2);line-height:1.6;padding:3px 0 0;cursor:pointer;border-bottom:1px dashed transparent;transition:border-color 0.2s;word-break:break-word;}
+.notes-disp:hover{border-color:var(--border);}
+.notes-disp.empty{color:var(--text3);font-style:italic;}
+.notes-wrap{width:100%;padding-left:13px;}
+.empty-state{text-align:center;padding:32px;color:var(--text3);font-size:13px;}
+.empty-icon{font-size:28px;display:block;margin-bottom:8px;}
+.chapters-layout{display:grid;grid-template-columns:260px 1fr;gap:16px;align-items:start;}
+.tree-panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.tree-subj{border-bottom:1px solid var(--border);}
+.tree-subj:last-child{border-bottom:none;}
+.tree-subj-hdr{padding:10px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:background 0.15s;}
+.tree-subj-hdr:hover{background:var(--bg3);}
+.tree-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.tree-subj-name{font-size:12px;font-weight:600;flex:1;}
+.tree-chevron{color:var(--text3);font-size:11px;transition:transform 0.2s;}
+.tree-chapters{display:none;border-top:1px solid var(--border);}
+.tree-chapters.open{display:block;}
+.tree-chapter{padding:8px 14px 8px 30px;cursor:pointer;font-size:12px;color:var(--text2);transition:all 0.15s;display:flex;align-items:center;justify-content:space-between;border-left:3px solid transparent;}
+.tree-chapter:hover{background:var(--bg3);color:var(--text);}
+.tree-chapter.selected{color:var(--text);border-left-color:var(--red);background:rgba(255,0,51,0.06);}
+.tree-ch-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);}
+.tree-add{padding:7px 14px 7px 30px;display:flex;gap:5px;}
+.tree-add-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:11px;padding:5px 8px;outline:none;font-family:'Inter',sans-serif;}
+.tree-add-input:focus{border-color:rgba(255,0,51,0.5);}
+.tree-add-btn{background:var(--grad);color:#fff;border:none;border-radius:6px;font-size:11px;padding:5px 10px;cursor:pointer;font-weight:600;}
+.ch-detail{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.ch-detail-header{padding:16px 18px;border-bottom:1px solid var(--border);}
+.ch-detail-subj{font-size:11px;color:var(--text3);margin-bottom:4px;}
+.ch-detail-title{font-size:16px;font-weight:700;}
+.ch-detail-stats{display:flex;gap:16px;margin-top:10px;}
+.ch-stat{text-align:center;}
+.ch-stat-val{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.ch-stat-label{font-size:10px;color:var(--text3);font-weight:500;}
+.subtopics-section{padding:14px 18px;border-bottom:1px solid var(--border);}
+.subtopic-row{display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:background 0.15s;border-radius:6px;padding:7px 8px;}
+.subtopic-row:hover{background:var(--bg3);}
+.subtopic-row:last-child{border-bottom:none;}
+.subtopic-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:var(--tr);}
+.subtopic-check.done{background:var(--grad);border-color:transparent;}
+.subtopic-check svg{width:10px;height:10px;color:#fff;}
+.subtopic-name{flex:1;font-size:12px;font-weight:500;}
+.subtopic-name.done{text-decoration:line-through;color:var(--text3);}
+.subtopic-time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);}
+.subtopic-del{background:none;border:none;cursor:pointer;color:var(--text3);padding:2px 4px;border-radius:4px;transition:color 0.15s;}
+.subtopic-del:hover{color:#ff4444;}
+.add-subtopic-form{display:flex;gap:6px;margin-top:8px;}
+.ch-sessions-section{padding:14px 18px;}
+.log-group{margin-bottom:16px;}
+.log-date-hdr{display:flex;justify-content:space-between;align-items:center;padding:6px 2px 10px;}
+.log-date{font-size:13px;font-weight:600;color:var(--text2);}
+.log-total-badge{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;padding:3px 10px;border-radius:12px;border:1px solid rgba(255,0,51,0.25);}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:var(--tr);}
+.metric-card:hover{background:var(--surface2);}
+.metric-icon{font-size:18px;margin-bottom:8px;display:block;}
+.metric-label{font-size:10px;color:var(--text3);font-weight:600;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px;}
+.metric-val{font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.chart-title{font-size:12px;font-weight:600;margin-bottom:14px;color:var(--text2);}
+.week-chart-wrap{display:flex;gap:10px;align-items:flex-end;}
+.week-y-axis{display:flex;flex-direction:column-reverse;justify-content:space-between;width:28px;padding-bottom:22px;}
+.week-y-label{font-size:9px;color:var(--text3);text-align:right;}
+.week-bars-area{flex:1;position:relative;}
+.week-grid-lines{position:absolute;top:0;left:0;right:0;}
+.week-grid-line{position:absolute;left:0;right:0;height:1px;background:rgba(255,255,255,0.04);}
+.week-bars-row{display:grid;grid-template-columns:repeat(7,1fr);position:relative;z-index:1;}
+.week-bar-col{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.week-bar-stack{width:100%;border-radius:4px 4px 0 0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;}
+.week-bar-seg{width:100%;}
+.week-day-label{font-size:10px;color:var(--text3);text-align:center;}
+.week-day-total{font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.week-chart-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);}
+.legend-dot{width:8px;height:8px;border-radius:50%;}
+.subj-bar-row{margin-bottom:12px;}
+.subj-bar-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.subj-bar-name{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;}
+.subj-bar-val{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.bar-track{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;transition:width 0.6s ease;}
+.heat-row{display:flex;gap:5px;justify-content:center;}
+.heat-cell{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.heat-block{width:28px;height:28px;border-radius:5px;border:1px solid var(--border);}
+.heat-day{font-size:9px;color:var(--text3);}
+.backup-section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px;}
+.backup-section h3{font-size:13px;font-weight:600;margin-bottom:6px;}
+.backup-section p{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px;}
+.btn{padding:9px 18px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:'Inter',sans-serif;transition:var(--tr);}
+.btn.primary{background:var(--grad);color:#fff;}
+.btn.danger{background:#2a1111;color:#ff4444;border:1px solid rgba(255,68,68,0.3);}
+.btn:hover{opacity:0.85;}
+.backup-info{font-size:11px;color:var(--text3);margin-top:8px;}
+.danger-zone{border-color:rgba(255,68,68,0.2);}
+/* ── FULLSCREEN TIMER OVERLAY ── */
+.fs-overlay{display:none;position:fixed;inset:0;background:var(--bg);z-index:1000;flex-direction:column;align-items:center;justify-content:center;animation:fsIn 0.35s cubic-bezier(.4,0,.2,1);}
+.fs-overlay.active{display:flex;}
+@keyframes fsIn{from{opacity:0;transform:scale(0.97);}to{opacity:1;transform:scale(1);}}
+.fs-subject-badge{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;color:var(--text2);margin-bottom:18px;letter-spacing:0.2px;}
+.fs-subject-dot{width:10px;height:10px;border-radius:50%;}
+.fs-chapter-info{font-size:13px;color:var(--text3);margin-bottom:40px;font-style:italic;min-height:20px;}
+.fs-timer{font-family:'JetBrains Mono',monospace;font-size:100px;font-weight:200;letter-spacing:-6px;line-height:1;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:52px;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.8;}}
+.fs-stop-btn{width:72px;height:72px;border-radius:50%;border:2px solid #ff4444;background:rgba(255,68,68,0.08);color:#ff4444;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--tr);margin-bottom:32px;}
+.fs-stop-btn:hover{background:rgba(255,68,68,0.2);transform:scale(1.06);}
+.fs-stop-btn:active{transform:scale(0.95);}
+.fs-stop-btn svg{width:30px;height:30px;}
+.fs-hint{font-size:11px;color:var(--text3);}
+.fs-stats-row{display:flex;gap:40px;margin-bottom:44px;}
+.fs-stat{text-align:center;}
+.fs-stat-val{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:var(--text2);}
+.fs-stat-label{font-size:10px;color:var(--text3);margin-top:3px;font-weight:500;text-transform:uppercase;letter-spacing:0.4px;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border2);border-radius:24px;padding:10px 20px;font-size:13px;font-weight:500;transition:transform 0.3s ease,opacity 0.3s ease;opacity:0;pointer-events:none;z-index:9999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.error{border-color:rgba(255,68,68,0.4);color:#ff6666;}
+#import-input{display:none;}
 </style>
 </head>
 <body>
-<div id="app">
-  <!-- APP BAR -->
-  <div class="app-bar">
-    <div class="app-bar-brand">
-      <div class="app-bar-logo">📚</div>
-      <span class="app-bar-title">Study Tracker</span>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">📚</div>
+    <div>
+      <div class="logo-title">StudyTrack</div>
+      <div class="logo-sub">JEE 2026</div>
     </div>
-    <button class="icon-chip" onclick="switchView('backup', document.querySelectorAll('.tab-btn')[3])" title="Backup & Restore">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>
-    </button>
   </div>
+  <div class="sidebar-stats">
+    <div class="sstat"><div class="sstat-label">Today</div><div class="sstat-val" id="stat-today">00:00:00</div></div>
+    <div class="sstat"><div class="sstat-label">This Week</div><div class="sstat-val sm" id="stat-week">00:00:00</div></div>
+    <div class="sstat"><div class="sstat-label">All Time</div><div class="sstat-val sm" id="stat-all">00:00:00</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <button class="nav-item active" onclick="switchView('timer',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Timer
+    </button>
+    <button class="nav-item" onclick="switchView('chapters',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Chapters
+    </button>
+    <button class="nav-item" onclick="switchView('log',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Session Log
+    </button>
+    <button class="nav-item" onclick="switchView('stats',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics
+    </button>
+    <div class="nav-sep"></div>
+    <button class="nav-item" onclick="switchView('backup',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Backup
+    </button>
+  </nav>
+</aside>
 
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Timer</div>
+    <div class="topbar-tag" id="topbar-date"></div>
+  </div>
   <div class="content">
-    <!-- STATS ROW -->
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-label">Today</div><div class="stat-value" id="stat-today">00:00:00</div></div>
-      <div class="stat-card"><div class="stat-label">This Week</div><div class="stat-value" id="stat-week">00:00:00</div></div>
-      <div class="stat-card"><div class="stat-label">All Time</div><div class="stat-value" id="stat-all">00:00:00</div></div>
-    </div>
 
-    <!-- NAV TABS -->
-    <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchView('timer',this)">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42C16.07 4.74 14.12 4 12 4c-4.97 0-9 4.03-9 9s4.02 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
-        Timer
-      </button>
-      <button class="tab-btn" onclick="switchView('log',this)">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-        Log
-      </button>
-      <button class="tab-btn" onclick="switchView('stats',this)">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 9.2h3V19H5V9.2zM10.6 5h2.8v14h-2.8V5zm5.6 8H19v6h-2.8v-6z"/></svg>
-        Stats
-      </button>
-      <button class="tab-btn" onclick="switchView('backup',this)">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>
-        Backup
-      </button>
-    </div>
-
-    <!-- TIMER VIEW -->
     <div class="view active" id="view-timer">
-      <div id="subject-row">
-        <div class="section-title">Select Subject</div>
-        <div class="subject-chips" id="chips"></div>
+      <div class="timer-layout">
+        <div>
+          <div class="timer-card">
+            <div class="timer-display" id="timer-display">00:00:00</div>
+            <div class="timer-active-label" id="active-label">Ready to start</div>
+            <div class="timer-chapter-label" id="chapter-label"></div>
+            <button class="fab start" id="fab-btn" onclick="toggleTimer()">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+          </div>
+          <div style="margin-top:12px;" id="today-blocks"></div>
+        </div>
+        <div class="sel-panel" id="subject-row">
+          <div class="sel-section">
+            <div class="sel-label">Subject</div>
+            <div class="subj-grid" id="chips"></div>
+          </div>
+          <div class="sel-section">
+            <div class="sel-label">Chapter</div>
+            <div class="sel-row">
+              <select class="sel-input" id="chapter-select" onchange="onChapterChange()">
+                <option value="">— Select Chapter —</option>
+              </select>
+              <button class="icon-btn-sm" onclick="toggleAddChapter()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+            </div>
+            <div class="add-form" id="add-chapter-form">
+              <input class="add-input" id="add-chapter-input" placeholder="Chapter name…" onkeydown="if(event.key==='Enter')saveChapter()">
+              <button class="btn-xs primary" onclick="saveChapter()">Add</button>
+              <button class="btn-xs ghost" onclick="cancelAddChapter()">✕</button>
+            </div>
+          </div>
+          <div class="sel-section">
+            <div class="sel-label">Subtopic</div>
+            <div class="sel-row">
+              <select class="sel-input" id="subtopic-select">
+                <option value="">— Select Subtopic —</option>
+              </select>
+              <button class="icon-btn-sm" onclick="toggleAddSubtopic()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+            </div>
+            <div class="add-form" id="add-subtopic-form">
+              <input class="add-input" id="add-subtopic-input" placeholder="Subtopic name…" onkeydown="if(event.key==='Enter')saveSubtopic()">
+              <button class="btn-xs primary" onclick="saveSubtopic()">Add</button>
+              <button class="btn-xs ghost" onclick="cancelAddSubtopic()">✕</button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="timer-card">
-        <div class="timer-display" id="timer-display">00:00:00</div>
-        <div class="active-label" id="active-label">Ready to start</div>
-        <button class="fab start" id="fab-btn" onclick="toggleTimer()">
-          <svg id="fab-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-      </div>
-      <div id="today-blocks"></div>
     </div>
 
-    <!-- LOG VIEW -->
-    <div class="view" id="view-log">
-      <div class="scrollable" id="log-content"></div>
+    <div class="view" id="view-chapters">
+      <div class="chapters-layout">
+        <div><div class="tree-panel" id="chapter-tree"></div></div>
+        <div id="chapter-detail-wrap">
+          <div class="empty-state" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:48px;">
+            <span class="empty-icon">📖</span>Select a chapter from the left to see details and subtopics.
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- STATS VIEW -->
+    <div class="view" id="view-log"><div id="log-content"></div></div>
+
     <div class="view" id="view-stats">
       <div class="metrics-grid" id="metrics-grid"></div>
-      <div class="chart-card">
-        <div class="chart-title">Week Overview — Hours per Day</div>
-        <div id="week-bar-chart"></div>
+      <div class="charts-grid">
+        <div class="chart-card" style="grid-column:1/-1;"><div class="chart-title">📅 Week Overview — Hours per Day</div><div id="week-bar-chart"></div></div>
+        <div class="chart-card"><div class="chart-title">📊 Subject Breakdown</div><div id="subject-bars"></div></div>
+        <div class="chart-card"><div class="chart-title">🔥 Last 7 Days</div><div class="heat-row" id="heatmap"></div></div>
       </div>
-      <div class="chart-card"><div class="chart-title">Subject Breakdown</div><div id="subject-bars"></div></div>
-      <div class="chart-card"><div class="chart-title">Last 7 Days</div><div class="heatmap" id="heatmap"></div></div>
     </div>
 
-    <!-- BACKUP VIEW -->
     <div class="view" id="view-backup">
-      <div class="backup-card">
-        <div class="backup-title">📤 Export Backup</div>
-        <div class="backup-desc">Download all your sessions as a <strong>.json</strong> file. Save it somewhere safe — Google Drive, WhatsApp to yourself, email, etc.</div>
-        <button class="backup-btn export" onclick="exportBackup()">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>
-          Download Backup
-        </button>
-        <div class="backup-info" id="backup-info">—</div>
+      <div class="backup-section">
+        <h3>📤 Export Backup</h3>
+        <p>Download all your sessions as a <strong>.json</strong> file. Save it somewhere safe — Google Drive, WhatsApp to yourself, email, etc.</p>
+        <div class="backup-info" id="backup-info"></div><br>
+        <button class="btn primary" onclick="exportBackup()">Download Backup</button>
       </div>
-      <div class="backup-card">
-        <div class="backup-title">📥 Restore Backup</div>
-        <div class="backup-desc">Pick a backup <strong>.json</strong> file you exported before. All sessions in the file will be merged with your current data — no duplicates.</div>
-        <input type="file" id="restore-file" accept=".json" style="display:none" onchange="importBackup(event)">
-        <button class="backup-btn import" onclick="document.getElementById('restore-file').click()">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
-          Choose Backup File
-        </button>
-        <div class="backup-info">⚠️ Existing sessions with the same ID won't be duplicated</div>
+      <div class="backup-section">
+        <h3>📥 Restore Backup</h3>
+        <p>Pick a backup <strong>.json</strong> file. All sessions will be merged — no duplicates.</p>
+        <input type="file" id="import-input" accept=".json" onchange="importBackup(event)">
+        <button class="btn primary" onclick="document.getElementById('import-input').click()">Choose File</button>
       </div>
-      <div class="backup-card">
-        <div class="backup-title">⚠️ Danger Zone</div>
-        <div class="backup-desc">Permanently delete all your sessions from this device. Export a backup first!</div>
-        <button class="backup-btn danger" onclick="clearAllData()">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
-          Clear All Data
-        </button>
+      <div class="backup-section danger-zone">
+        <h3>⚠️ Danger Zone</h3>
+        <p>Permanently delete all your sessions from this device. Export a backup first!</p>
+        <button class="btn danger" onclick="clearAllData()">Delete All Data</button>
       </div>
     </div>
+
   </div>
+</main>
+
+<!-- FULLSCREEN OVERLAY -->
+<div class="fs-overlay" id="fs-overlay">
+  <div class="fs-subject-badge">
+    <div class="fs-subject-dot" id="fs-dot"></div>
+    <span id="fs-subject-name"></span>
+  </div>
+  <div class="fs-chapter-info" id="fs-chapter-info"></div>
+  <div class="fs-stats-row">
+    <div class="fs-stat"><div class="fs-stat-val" id="fs-today">00:00:00</div><div class="fs-stat-label">Today</div></div>
+    <div class="fs-stat"><div class="fs-stat-val" id="fs-week">00:00:00</div><div class="fs-stat-label">This Week</div></div>
+  </div>
+  <div class="fs-timer" id="fs-timer">00:00:00</div>
+  <button class="fs-stop-btn" onclick="stopTimer()">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h12v12H6z"/></svg>
+  </button>
+  <div class="fs-hint">Press Stop to save session</div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-const STORAGE_KEY = 'study_sessions';
-const SUBJECTS = [
-  { id:'physics',     label:'Physics',       icon:'⚛',  color:'#3ea6ff' },
-  { id:'chemistry',   label:'Chemistry',     icon:'🧪', color:'#ff70aa' },
-  { id:'mathematics', label:'Mathematics',   icon:'📐', color:'#4caf82' },
-  { id:'revision',    label:'Revision',      icon:'📝', color:'#ffb74d' },
-  { id:'analysis',    label:'Test Analysis', icon:'📊', color:'#b47aee' },
-  { id:'test',        label:'Test',          icon:'📋', color:'#ff4444' },
+const STORAGE_KEY='study_sessions';
+const CHAPTERS_KEY='study_chapters';
+const SUBJECTS=[
+  {id:'physics',label:'Physics',icon:'⚛',color:'#3ea6ff'},
+  {id:'chemistry',label:'Chemistry',icon:'🧪',color:'#ff70aa'},
+  {id:'mathematics',label:'Mathematics',icon:'📐',color:'#4caf82'},
+  {id:'revision',label:'Revision',icon:'📝',color:'#ffb74d'},
+  {id:'analysis',label:'Analysis',icon:'📊',color:'#b47aee'},
+  {id:'test',label:'Test',icon:'📋',color:'#ff4444'},
 ];
-const ICONS = {
-  play:   `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
-  stop:   `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h12v12H6z"/></svg>`,
-  delete: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>`,
+const ICONS={
+  play:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
+  stop:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h12v12H6z"/></svg>`,
+  delete:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>`,
+  check:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`,
 };
-function getSubject(id) { return SUBJECTS.find(s=>s.id===id)||SUBJECTS[0]; }
-
-// ── LOCAL STORAGE ──
-function loadSessions() {
-  try { const raw=localStorage.getItem(STORAGE_KEY); return raw?JSON.parse(raw):[]; }
-  catch(e) { return []; }
-}
-function saveSessions(arr) {
-  try { localStorage.setItem(STORAGE_KEY,JSON.stringify(arr)); }
-  catch(e) { showToast('⚠️ Storage full!','error'); }
-}
-
-// ── STATE ──
-let sessions = loadSessions();
-let activeSession = null, elapsed = 0;
-let timerInterval = null, selectedSubject = SUBJECTS[0];
-
-// ── FORMAT ──
-function fmtDur(s) {
-  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
-  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-}
-function fmtShort(s) {
-  if(!s) return '0m';
-  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);
-  if(h>0&&m>0) return `${h}h ${m}m`;
-  if(h>0) return `${h}h`;
-  return `${m}m`;
-}
-function todayKey() { return new Date().toLocaleDateString('sv-SE'); }
-function fmtTime(ts) { return new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
-function fmtDate(d) {
-  if(d===todayKey()) return 'Today';
-  const yesterday=new Date(); yesterday.setDate(yesterday.getDate()-1);
-  if(d===yesterday.toLocaleDateString('sv-SE')) return 'Yesterday';
-  return new Date(d+'T00:00:00').toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
-}
-
-// ── TOAST ──
+function getSubject(id){return SUBJECTS.find(s=>s.id===id)||SUBJECTS[0];}
+function loadSessions(){try{const r=localStorage.getItem(STORAGE_KEY);return r?JSON.parse(r):[]; }catch(e){return[];}}
+function saveSessions(arr){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(arr));}catch(e){showToast('⚠️ Storage full!','error');}}
+function loadChapters(){try{const r=localStorage.getItem(CHAPTERS_KEY);return r?JSON.parse(r):{};} catch(e){return{};}}
+function saveChapters(obj){try{localStorage.setItem(CHAPTERS_KEY,JSON.stringify(obj));}catch(e){showToast('⚠️ Storage full!','error');}}
+let sessions=loadSessions();
+let chapters=loadChapters();
+let activeSession=null,elapsed=0,timerInterval=null;
+let selectedSubject=SUBJECTS[0];
+let selectedChapterId='',selectedSubtopicId='';
+let selectedChapterDetailKey=null;
+let openSubjects={};
+function fmtDur(s){const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=s%60;return`${pad(h)}:${pad(m)}:${pad(sc)}`;}
+function pad(n){return String(n).padStart(2,'0');}
+function fmtShort(s){if(!s)return'0m';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);if(h>0&&m>0)return`${h}h ${m}m`;if(h>0)return`${h}h`;return`${m}m`;}
+function todayKey(){return new Date().toLocaleDateString('sv-SE');}
+function fmtTime(ts){return new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
+function fmtDate(d){if(d===todayKey())return'Today';const y=new Date();y.setDate(y.getDate()-1);if(d===y.toLocaleDateString('sv-SE'))return'Yesterday';return new Date(d+'T00:00:00').toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});}
+function totalDur(arr){return arr.reduce((a,s)=>a+(s.duration||0),0);}
 let toastTimer;
-function showToast(msg,type='success') {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className=`toast ${type} show`;
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
-}
-
-// ── TIMER ──
-function toggleTimer() { activeSession?stopTimer():startTimer(); }
-function startTimer() {
-  activeSession={id:Date.now(),subject:selectedSubject.id,startTime:Date.now(),date:todayKey(),notes:''};
+function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast ${type} show`;clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800);}
+function getSubjChapters(subjId){return chapters[subjId]||[];}
+function getChapter(subjId,chapId){return getSubjChapters(subjId).find(c=>c.id==chapId);}
+function getSubtopic(subjId,chapId,stId){const ch=getChapter(subjId,chapId);return ch?ch.subtopics.find(s=>s.id==stId):null;}
+function addChapter(subjId,name){if(!chapters[subjId])chapters[subjId]=[];const id=Date.now();chapters[subjId].push({id,name:name.trim(),subtopics:[]});saveChapters(chapters);return id;}
+function addSubtopic(subjId,chapId,name){const ch=getChapter(subjId,chapId);if(!ch)return;const id=Date.now();ch.subtopics.push({id,name:name.trim(),done:false});saveChapters(chapters);return id;}
+function toggleSubtopicDone(subjId,chapId,stId){const st=getSubtopic(subjId,chapId,stId);if(st){st.done=!st.done;saveChapters(chapters);}}
+function deleteSubtopic(subjId,chapId,stId){const ch=getChapter(subjId,chapId);if(ch){ch.subtopics=ch.subtopics.filter(s=>s.id!=stId);saveChapters(chapters);}}
+function chapterTime(subjId,chapId){return totalDur(sessions.filter(s=>s.subject===subjId&&s.chapterId==chapId));}
+function subtopicTime(subjId,chapId,stId){return totalDur(sessions.filter(s=>s.subject===subjId&&s.chapterId==chapId&&s.subtopicId==stId));}
+function toggleTimer(){activeSession?stopTimer():startTimer();}
+function startTimer(){
+  const chapSel=document.getElementById('chapter-select');
+  const stSel=document.getElementById('subtopic-select');
+  selectedChapterId=chapSel?chapSel.value:'';
+  selectedSubtopicId=stSel?stSel.value:'';
+  const ch=selectedChapterId?getChapter(selectedSubject.id,selectedChapterId):null;
+  const st=selectedSubtopicId?getSubtopic(selectedSubject.id,selectedChapterId,selectedSubtopicId):null;
+  activeSession={id:Date.now(),subject:selectedSubject.id,startTime:Date.now(),date:todayKey(),notes:'',
+    chapterId:selectedChapterId||null,chapterName:ch?ch.name:null,
+    subtopicId:selectedSubtopicId||null,subtopicName:st?st.name:null};
   elapsed=0;
   const btn=document.getElementById('fab-btn');
-  btn.className='fab stop'; btn.innerHTML=ICONS.stop;
+  btn.className='fab stop';btn.innerHTML=ICONS.stop;
   document.getElementById('timer-display').classList.add('running');
   document.getElementById('active-label').innerHTML=`Studying <span>${selectedSubject.icon} ${selectedSubject.label}</span>`;
+  const lbl=ch?(st?`${ch.name} › ${st.name}`:ch.name):'';
+  document.getElementById('chapter-label').textContent=lbl;
   document.getElementById('subject-row').style.display='none';
+  // Fullscreen
+  document.getElementById('fs-dot').style.background=selectedSubject.color;
+  document.getElementById('fs-subject-name').textContent=selectedSubject.icon+' '+selectedSubject.label;
+  document.getElementById('fs-chapter-info').textContent=lbl;
+  document.getElementById('fs-overlay').classList.add('active');
+  updateFsStats();
   timerInterval=setInterval(()=>{
     elapsed=Math.floor((Date.now()-activeSession.startTime)/1000);
     document.getElementById('timer-display').textContent=fmtDur(elapsed);
+    document.getElementById('fs-timer').textContent=fmtDur(elapsed);
   },1000);
 }
-function stopTimer() {
+function updateFsStats(){
+  const week=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);week.push(d.toLocaleDateString('sv-SE'));}
+  document.getElementById('fs-today').textContent=fmtDur(totalDur(sessions.filter(s=>s.date===todayKey())));
+  document.getElementById('fs-week').textContent=fmtDur(totalDur(sessions.filter(s=>week.includes(s.date))));
+}
+function stopTimer(){
   clearInterval(timerInterval);
-  if(!activeSession) return;
+  if(!activeSession)return;
   const dur=Math.floor((Date.now()-activeSession.startTime)/1000);
-  if(dur<5){ activeSession=null; elapsed=0; resetTimerUI(); return; }
+  document.getElementById('fs-overlay').classList.remove('active');
+  if(dur<5){activeSession=null;elapsed=0;resetTimerUI();return;}
   const s={...activeSession,endTime:Date.now(),duration:dur};
-  sessions.unshift(s);
-  saveSessions(sessions);
-  activeSession=null; elapsed=0;
-  resetTimerUI(); renderAll();
+  sessions.unshift(s);saveSessions(sessions);
+  activeSession=null;elapsed=0;
+  resetTimerUI();renderAll();
   showToast(`✅ Session saved — ${fmtDur(dur)}`);
 }
-function resetTimerUI() {
+function resetTimerUI(){
   const btn=document.getElementById('fab-btn');
-  btn.className='fab start'; btn.innerHTML=ICONS.play;
+  btn.className='fab start';btn.innerHTML=ICONS.play;
   document.getElementById('timer-display').classList.remove('running');
   document.getElementById('timer-display').textContent='00:00:00';
   document.getElementById('active-label').textContent='Ready to start';
-  document.getElementById('subject-row').style.display='block';
+  document.getElementById('chapter-label').textContent='';
+  document.getElementById('subject-row').style.display='';
 }
-
-// ── NOTES ──
-function updateNotes(id, value) {
-  const idx=sessions.findIndex(s=>s.id===id);
-  if(idx<0) return;
-  sessions[idx].notes=value.trim();
-  saveSessions(sessions);
+function populateChapterSelect(){
+  const sel=document.getElementById('chapter-select');
+  const chs=getSubjChapters(selectedSubject.id);
+  sel.innerHTML='<option value="">— Select Chapter —</option>'+chs.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  sel.value='';populateSubtopicSelect('');
 }
-
-// Notes editing: click display → show textarea → blur saves
-function makeNotesRow(s) {
-  const notes = (s.notes||'').trim();
-  return `<div class="notes-row" id="notes-row-${s.id}">
-    <div class="notes-display ${notes?'':'empty'}" onclick="editNotes(${s.id})" id="notes-disp-${s.id}">${notes || '+ Add what you studied…'}</div>
-  </div>`;
+function onChapterChange(){populateSubtopicSelect(document.getElementById('chapter-select').value);}
+function populateSubtopicSelect(chapId){
+  const sel=document.getElementById('subtopic-select');
+  if(!chapId){sel.innerHTML='<option value="">— Select Subtopic —</option>';return;}
+  const ch=getChapter(selectedSubject.id,chapId);
+  const sts=ch?ch.subtopics:[];
+  sel.innerHTML='<option value="">— Select Subtopic —</option>'+sts.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  sel.value='';
 }
-function editNotes(id) {
-  const disp=document.getElementById(`notes-disp-${id}`);
-  if(!disp) return;
-  const s=sessions.find(x=>x.id===id);
-  const cur=(s&&s.notes)||'';
-  const row=document.getElementById(`notes-row-${id}`);
-  row.innerHTML=`<textarea class="notes-area" id="notes-ta-${id}" placeholder="What did you study? e.g. Electrochemistry – Nernst eq, numericals" rows="2">${cur}</textarea>`;
-  const ta=document.getElementById(`notes-ta-${id}`);
-  ta.focus(); ta.selectionStart=ta.selectionEnd=ta.value.length;
-  // auto-resize
-  ta.addEventListener('input',()=>{ ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; });
-  ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px';
+function toggleAddChapter(){const f=document.getElementById('add-chapter-form');f.classList.toggle('open');if(f.classList.contains('open'))document.getElementById('add-chapter-input').focus();}
+function cancelAddChapter(){document.getElementById('add-chapter-form').classList.remove('open');document.getElementById('add-chapter-input').value='';}
+function saveChapter(){const v=document.getElementById('add-chapter-input').value.trim();if(!v)return;addChapter(selectedSubject.id,v);document.getElementById('add-chapter-input').value='';cancelAddChapter();populateChapterSelect();renderChapterTree();showToast(`✅ Chapter added: ${v}`);}
+function toggleAddSubtopic(){const f=document.getElementById('add-subtopic-form');f.classList.toggle('open');if(f.classList.contains('open'))document.getElementById('add-subtopic-input').focus();}
+function cancelAddSubtopic(){document.getElementById('add-subtopic-form').classList.remove('open');document.getElementById('add-subtopic-input').value='';}
+function saveSubtopic(){const v=document.getElementById('add-subtopic-input').value.trim();const chapId=document.getElementById('chapter-select').value;if(!v||!chapId){showToast('⚠️ Select a chapter first','error');return;}addSubtopic(selectedSubject.id,chapId,v);document.getElementById('add-subtopic-input').value='';cancelAddSubtopic();onChapterChange();renderChapterTree();showToast(`✅ Subtopic added: ${v}`);}
+function renderChips(){document.getElementById('chips').innerHTML=SUBJECTS.map(s=>`<button class="subj-btn ${s.id===selectedSubject.id?'selected':''}" style="${s.id===selectedSubject.id?`background:${s.color};border-color:${s.color}`:''}" onclick="selectSubject('${s.id}')"><div class="dot" style="background:${s.color}"></div>${s.icon} ${s.label}</button>`).join('');}
+function selectSubject(id){selectedSubject=getSubject(id);renderChips();populateChapterSelect();}
+function sessionHTML(s){
+  const sub=getSubject(s.subject);
+  const chTag=s.chapterName?`<span class="session-chapter-tag" style="background:${sub.color}22;color:${sub.color};border:1px solid ${sub.color}44">${s.chapterName}</span>`:'';
+  const stTag=s.subtopicName?`<span class="session-subtopic-tag">${s.subtopicName}</span>`:'';
+  return`<div class="session-row"><div class="session-top"><div class="session-bar" style="background:${sub.color}"></div><div class="session-info"><div class="session-subj">${sub.icon} ${sub.label} ${chTag}${stTag}</div><div class="session-time">${fmtTime(s.startTime)} – ${fmtTime(s.endTime)}</div></div><div class="session-dur">${fmtDur(s.duration)}</div><button class="del-btn" onclick="deleteSession(${s.id})">${ICONS.delete}</button></div>${makeNotesRow(s)}</div>`;
+}
+function makeNotesRow(s){const notes=(s.notes||'').trim();return`<div class="notes-wrap" id="nw-${s.id}"><div class="notes-disp ${notes?'':'empty'}" onclick="editNotes(${s.id})" id="nd-${s.id}">${notes||'+ Add what you studied…'}</div></div>`;}
+function editNotes(id){
+  const s=sessions.find(x=>x.id===id);if(!s)return;
+  const row=document.getElementById(`nw-${id}`);
+  row.innerHTML=`<textarea class="notes-area" id="nta-${id}" rows="2">${s.notes||''}</textarea>`;
+  const ta=document.getElementById(`nta-${id}`);
+  ta.focus();ta.selectionStart=ta.selectionEnd=ta.value.length;
+  ta.addEventListener('input',()=>{ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';});
+  ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
   ta.addEventListener('blur',()=>{
-    updateNotes(id,ta.value);
-    // re-render just this notes row
-    const s2=sessions.find(x=>x.id===id);
-    const notes2=(s2&&s2.notes)||'';
-    row.innerHTML=`<div class="notes-display ${notes2?'':'empty'}" onclick="editNotes(${id})" id="notes-disp-${id}">${notes2||'+ Add what you studied…'}</div>`;
+    const idx=sessions.findIndex(x=>x.id===id);if(idx>=0){sessions[idx].notes=ta.value.trim();saveSessions(sessions);}
+    const s2=sessions.find(x=>x.id===id);const notes2=(s2&&s2.notes)||'';
+    row.innerHTML=`<div class="notes-disp ${notes2?'':'empty'}" onclick="editNotes(${id})" id="nd-${id}">${notes2||'+ Add what you studied…'}</div>`;
   });
-  ta.addEventListener('keydown',(e)=>{ if(e.key==='Enter'&&e.ctrlKey) ta.blur(); });
+  ta.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.ctrlKey)ta.blur();});
 }
-
-// ── RENDER ──
-function renderChips() {
-  document.getElementById('chips').innerHTML=SUBJECTS.map(s=>
-    `<button class="subj-chip ${s.id===selectedSubject.id?'selected':''}"
-      style="${s.id===selectedSubject.id?`background:${s.color};border-color:${s.color}`:''}"
-      onclick="selectSubject('${s.id}')">
-      <div class="dot" style="background:${s.color}"></div>${s.icon} ${s.label}
-    </button>`
-  ).join('');
-}
-function selectSubject(id){ selectedSubject=getSubject(id); renderChips(); }
-function renderAll(){ renderTopStats(); renderTodayBlocks(); renderLog(); renderStatsView(); updateBackupInfo(); }
-function getTodaySessions(){ return sessions.filter(s=>s.date===todayKey()); }
-function getWeekSessions(){
-  // last 7 days including today
-  const keys=[];
-  for(let i=6;i>=0;i--){
-    const d=new Date(); d.setDate(d.getDate()-i);
-    keys.push(d.toLocaleDateString('sv-SE'));
-  }
-  return sessions.filter(s=>keys.includes(s.date));
-}
-function totalDur(arr){ return arr.reduce((a,s)=>a+(s.duration||0),0); }
-
 function renderTopStats(){
-  document.getElementById('stat-today').textContent=fmtDur(totalDur(getTodaySessions()));
-  document.getElementById('stat-week').textContent=fmtDur(totalDur(getWeekSessions()));
+  const week=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);week.push(d.toLocaleDateString('sv-SE'));}
+  document.getElementById('stat-today').textContent=fmtDur(totalDur(sessions.filter(s=>s.date===todayKey())));
+  document.getElementById('stat-week').textContent=fmtDur(totalDur(sessions.filter(s=>week.includes(s.date))));
   document.getElementById('stat-all').textContent=fmtDur(totalDur(sessions));
 }
-
-function blockItemHTML(s) {
-  const sub=getSubject(s.subject);
-  return `<div class="block-item">
-    <div class="block-item-top">
-      <div class="block-color" style="background:${sub.color}"></div>
-      <div class="block-info">
-        <div class="block-subj">${sub.icon} ${sub.label}</div>
-        <div class="block-time">${fmtTime(s.startTime)} – ${fmtTime(s.endTime)}</div>
-      </div>
-      <div class="block-dur">${fmtDur(s.duration)}</div>
-      <button class="icon-btn" onclick="deleteSession(${s.id})">${ICONS.delete}</button>
-    </div>
-    ${makeNotesRow(s)}
-  </div>`;
-}
-
 function renderTodayBlocks(){
-  const ts=getTodaySessions();
-  const el=document.getElementById('today-blocks');
-  if(!ts.length){ el.innerHTML=''; return; }
-  el.innerHTML=`<div class="blocks-card">
-    <div class="blocks-header">
-      <div class="blocks-title">Today's Sessions</div>
-      <div class="blocks-total">${fmtDur(totalDur(ts))}</div>
-    </div>
-    ${ts.map(s=>blockItemHTML(s)).join('')}
-  </div>`;
+  const ts=sessions.filter(s=>s.date===todayKey());
+  const el=document.getElementById('today-blocks');if(!el)return;
+  if(!ts.length){el.innerHTML='';return;}
+  el.innerHTML=`<div class="sessions-panel"><div class="panel-header"><div class="panel-title">Today's Sessions</div><div class="panel-total">${fmtDur(totalDur(ts))}</div></div>${ts.map(s=>sessionHTML(s)).join('')}</div>`;
 }
-
 function renderLog(){
   const el=document.getElementById('log-content');
-  if(!sessions.length){
-    el.innerHTML=`<div class="empty-state"><span class="empty-icon">📋</span>No sessions yet.<br>Start the timer to begin tracking!</div>`;
-    return;
-  }
-  const byDate={};
-  sessions.forEach(s=>{ if(!byDate[s.date]) byDate[s.date]=[]; byDate[s.date].push(s); });
+  if(!sessions.length){el.innerHTML=`<div class="empty-state"><span class="empty-icon">📋</span>No sessions yet.</div>`;return;}
+  const byDate={};sessions.forEach(s=>{if(!byDate[s.date])byDate[s.date]=[];byDate[s.date].push(s);});
   const dates=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
-  el.innerHTML=dates.map(date=>{
-    const ds=byDate[date];
-    return `<div class="log-group">
-      <div class="log-date-header">
-        <div class="log-date">${fmtDate(date)}</div>
-        <div class="log-date-total">Total: ${fmtDur(totalDur(ds))}</div>
-      </div>
-      <div class="blocks-card">${ds.map(s=>blockItemHTML(s)).join('')}</div>
-    </div>`;
+  el.innerHTML=dates.map(date=>{const ds=byDate[date];return`<div class="log-group"><div class="log-date-hdr"><div class="log-date">${fmtDate(date)}</div><div class="log-total-badge">Total: ${fmtDur(totalDur(ds))}</div></div><div class="sessions-panel">${ds.map(s=>sessionHTML(s)).join('')}</div></div>`;}).join('');
+}
+function deleteSession(id){if(!confirm('Delete this session?'))return;sessions=sessions.filter(s=>s.id!==id);saveSessions(sessions);renderAll();showToast('🗑️ Session deleted');}
+function renderChapterTree(){
+  const el=document.getElementById('chapter-tree');
+  el.innerHTML=SUBJECTS.map(sub=>{
+    const chs=getSubjChapters(sub.id);const isOpen=openSubjects[sub.id];
+    return`<div class="tree-subj"><div class="tree-subj-hdr" onclick="toggleSubjTree('${sub.id}')"><div class="tree-dot" style="background:${sub.color}"></div><div class="tree-subj-name">${sub.icon} ${sub.label} <span style="color:var(--text3);font-size:10px;">(${chs.length})</span></div><div class="tree-chevron">${isOpen?'▼':'▶'}</div></div><div class="tree-chapters ${isOpen?'open':''}">${chs.map(ch=>{const t=chapterTime(sub.id,ch.id);const isSel=selectedChapterDetailKey&&selectedChapterDetailKey.subjId===sub.id&&selectedChapterDetailKey.chapId==ch.id;return`<div class="tree-chapter ${isSel?'selected':''}" onclick="selectChapterDetail('${sub.id}',${ch.id})"><span>${ch.name}</span><span class="tree-ch-time">${t?fmtShort(t):''}</span></div>`;}).join('')}<div class="tree-add"><input class="tree-add-input" placeholder="Add chapter…" id="tadd-${sub.id}" onkeydown="if(event.key==='Enter')addChapterFromTree('${sub.id}')"><button class="tree-add-btn" onclick="addChapterFromTree('${sub.id}')">+</button></div></div></div>`;
   }).join('');
 }
-
-// ── WEEK BAR CHART ──
-function renderWeekBarChart(){
-  const MAX_HOURS = 12;
-  const MAX_SEC = MAX_HOURS * 3600;
-  const CHART_HEIGHT = 180; // px
-  const Y_TICKS = MAX_HOURS; // 1 per hour
-
-  // build 7-day keys
-  const days=[];
-  for(let i=6;i>=0;i--){
-    const d=new Date(); d.setDate(d.getDate()-i);
-    days.push({ key:d.toLocaleDateString('sv-SE'), label:d.toLocaleDateString([],{weekday:'short'}), d });
-  }
-
-  // aggregate per day per subject
-  const byDate={};
-  sessions.forEach(s=>{
-    if(!byDate[s.date]) byDate[s.date]={};
-    byDate[s.date][s.subject]=(byDate[s.date][s.subject]||0)+s.duration;
-  });
-
-  // grid lines HTML (absolute, behind bars)
-  const gridLines = Array.from({length:Y_TICKS+1},(_,i)=>{
-    const pct=(i/Y_TICKS)*100;
-    return `<div class="week-grid-line" style="bottom:${pct}%;"></div>`;
-  }).join('');
-
-  // y-axis labels
-  const yLabels = Array.from({length:Y_TICKS+1},(_,i)=>`<div class="week-y-label">${i}h</div>`).join('');
-
-  // bars
-  const barsHTML = days.map(({key,label})=>{
-    const dayData=byDate[key]||{};
-    const totalSec=Object.values(dayData).reduce((a,v)=>a+v,0);
-    const clampedSec=Math.min(totalSec,MAX_SEC);
-    const totalPct=MAX_SEC>0?(clampedSec/MAX_SEC)*100:0;
-    const barHeightPx=Math.round((clampedSec/MAX_SEC)*CHART_HEIGHT);
-
-    // stack segments per subject
-    const segs=SUBJECTS
-      .filter(sub=>dayData[sub.id])
-      .sort((a,b)=>(dayData[a.id]||0)-(dayData[b.id]||0))
-      .map(sub=>{
-        const sec=Math.min(dayData[sub.id]||0,MAX_SEC);
-        const segPct=clampedSec>0?(sec/MAX_SEC)*100:0;
-        const segH=Math.round((sec/MAX_SEC)*CHART_HEIGHT);
-        return `<div class="week-bar-seg" style="background:${sub.color};height:${segH}px;" title="${sub.label}: ${fmtShort(sec)}"></div>`;
-      }).join('');
-
-    const totalLabel = totalSec>0 ? fmtShort(totalSec) : '';
-    const isToday = key===todayKey();
-
-    return `<div class="week-bar-col">
-      <div style="height:${CHART_HEIGHT}px;display:flex;align-items:flex-end;width:100%;">
-        <div class="week-bar-stack" style="height:${barHeightPx}px;${isToday?'box-shadow:0 0 0 1px rgba(255,0,51,0.4);':''}">${segs||`<div style="height:2px;background:var(--bg2);width:100%;border-radius:6px 6px 0 0;"></div>`}</div>
-      </div>
-      <div class="week-day-label" style="${isToday?'color:var(--text);font-weight:700;':''}">${label}</div>
-      <div class="week-day-total">${totalLabel}</div>
-    </div>`;
-  }).join('');
-
-  // legend — only subjects that appear this week
-  const weekKeys=days.map(d=>d.key);
-  const usedSubjects=SUBJECTS.filter(sub=>weekKeys.some(k=>byDate[k]&&byDate[k][sub.id]));
-  const legendHTML=usedSubjects.map(sub=>
-    `<div class="legend-item"><div class="legend-dot" style="background:${sub.color}"></div>${sub.icon} ${sub.label}</div>`
-  ).join('');
-
-  document.getElementById('week-bar-chart').innerHTML=`
-    <div class="week-chart-wrap">
-      <div class="week-y-axis" style="height:${CHART_HEIGHT+22}px;">${yLabels}</div>
-      <div class="week-bars-area" style="position:relative;">
-        <div class="week-grid-lines" style="height:${CHART_HEIGHT}px;">${gridLines}</div>
-        <div class="week-bars-row" style="height:${CHART_HEIGHT}px;gap:6px;">${barsHTML}</div>
-        <div style="height:22px;"></div>
-      </div>
-    </div>
-    ${usedSubjects.length?`<div class="week-chart-legend">${legendHTML}</div>`:''}
-  `;
+function toggleSubjTree(subjId){openSubjects[subjId]=!openSubjects[subjId];renderChapterTree();}
+function addChapterFromTree(subjId){const inp=document.getElementById(`tadd-${subjId}`);if(!inp||!inp.value.trim())return;const name=inp.value.trim();const id=addChapter(subjId,name);inp.value='';openSubjects[subjId]=true;renderChapterTree();selectChapterDetail(subjId,id);showToast(`✅ Chapter added: ${name}`);}
+function selectChapterDetail(subjId,chapId){selectedChapterDetailKey={subjId,chapId};renderChapterTree();renderChapterDetail();}
+function renderChapterDetail(){
+  const el=document.getElementById('chapter-detail-wrap');
+  if(!selectedChapterDetailKey){el.innerHTML=`<div class="empty-state" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:48px;"><span class="empty-icon">📖</span>Select a chapter.</div>`;return;}
+  const{subjId,chapId}=selectedChapterDetailKey;
+  const sub=getSubject(subjId);const ch=getChapter(subjId,chapId);if(!ch){el.innerHTML='';return;}
+  const chSess=sessions.filter(s=>s.subject===subjId&&s.chapterId==chapId);
+  const totalT=totalDur(chSess);const doneCount=ch.subtopics.filter(s=>s.done).length;
+  const subtopicsHTML=ch.subtopics.length?ch.subtopics.map(st=>{const t=subtopicTime(subjId,chapId,st.id);return`<div class="subtopic-row" onclick="toggleSubtopicDoneUI('${subjId}',${chapId},${st.id})"><div class="subtopic-check ${st.done?'done':''}">${st.done?ICONS.check:''}</div><div class="subtopic-name ${st.done?'done':''}">${st.name}</div><div class="subtopic-time">${t?fmtShort(t):''}</div><button class="subtopic-del" onclick="event.stopPropagation();deleteSubtopicUI('${subjId}',${chapId},${st.id})">✕</button></div>`;}).join(''):`<div style="color:var(--text3);font-size:12px;padding:8px 0;">No subtopics yet.</div>`;
+  const chSessHTML=chSess.length?`<div class="sessions-panel">${chSess.map(s=>sessionHTML(s)).join('')}</div>`:`<div style="color:var(--text3);font-size:12px;">No sessions logged for this chapter yet.</div>`;
+  el.innerHTML=`<div class="ch-detail"><div class="ch-detail-header"><div class="ch-detail-subj" style="color:${sub.color}">${sub.icon} ${sub.label}</div><div class="ch-detail-title">${ch.name}</div><div class="ch-detail-stats"><div class="ch-stat"><div class="ch-stat-val">${fmtShort(totalT)||'0m'}</div><div class="ch-stat-label">Time Spent</div></div><div class="ch-stat"><div class="ch-stat-val">${ch.subtopics.length}</div><div class="ch-stat-label">Subtopics</div></div><div class="ch-stat"><div class="ch-stat-val">${doneCount}/${ch.subtopics.length}</div><div class="ch-stat-label">Done</div></div><div class="ch-stat"><div class="ch-stat-val">${chSess.length}</div><div class="ch-stat-label">Sessions</div></div></div></div><div class="subtopics-section"><div class="sel-label" style="margin-bottom:10px;">Subtopics</div>${subtopicsHTML}<div class="add-subtopic-form" style="margin-top:10px;"><input class="sel-input" id="ch-add-st-input" placeholder="Add subtopic…" onkeydown="if(event.key==='Enter')addSubtopicFromDetail()"><button class="btn-xs primary" onclick="addSubtopicFromDetail()">+ Add</button></div></div><div class="ch-sessions-section"><div class="sel-label" style="margin-bottom:10px;">Sessions in this Chapter</div>${chSessHTML}</div></div>`;
 }
-
+function toggleSubtopicDoneUI(subjId,chapId,stId){toggleSubtopicDone(subjId,chapId,stId);renderChapterDetail();}
+function deleteSubtopicUI(subjId,chapId,stId){if(!confirm('Delete this subtopic?'))return;deleteSubtopic(subjId,chapId,stId);renderChapterDetail();showToast('🗑️ Subtopic deleted');}
+function addSubtopicFromDetail(){if(!selectedChapterDetailKey)return;const{subjId,chapId}=selectedChapterDetailKey;const inp=document.getElementById('ch-add-st-input');if(!inp||!inp.value.trim())return;addSubtopic(subjId,chapId,inp.value.trim());showToast(`✅ Subtopic added: ${inp.value.trim()}`);inp.value='';renderChapterDetail();}
 function renderStatsView(){
-  const all=totalDur(sessions);
-  const avgSess=sessions.length?Math.round(all/sessions.length):0;
-  const byDate={};
-  sessions.forEach(s=>{ byDate[s.date]=(byDate[s.date]||0)+s.duration; });
+  const all=totalDur(sessions);const avgSess=sessions.length?Math.round(all/sessions.length):0;
+  const byDate={};sessions.forEach(s=>{byDate[s.date]=(byDate[s.date]||0)+s.duration;});
   const bestDay=Object.values(byDate).length?Math.max(...Object.values(byDate)):0;
   const days=new Set(sessions.map(s=>s.date)).size;
-
-  document.getElementById('metrics-grid').innerHTML=[
-    {icon:'📅',label:'Total Sessions',val:sessions.length},
-    {icon:'⏱', label:'Avg Session',   val:avgSess?fmtShort(avgSess):'—'},
-    {icon:'🏆',label:'Best Day',       val:bestDay?fmtShort(bestDay):'—'},
-    {icon:'📆',label:'Days Logged',    val:days},
-  ].map(m=>`<div class="metric-card">
-    <span class="metric-icon">${m.icon}</span>
-    <div class="metric-label">${m.label}</div>
-    <div class="metric-val">${m.val}</div>
-  </div>`).join('');
-
+  document.getElementById('metrics-grid').innerHTML=[{icon:'📅',label:'Total Sessions',val:sessions.length},{icon:'⏱',label:'Avg Session',val:avgSess?fmtShort(avgSess):'—'},{icon:'🏆',label:'Best Day',val:bestDay?fmtShort(bestDay):'—'},{icon:'📆',label:'Days Logged',val:days}].map(m=>`<div class="metric-card"><span class="metric-icon">${m.icon}</span><div class="metric-label">${m.label}</div><div class="metric-val">${m.val}</div></div>`).join('');
   renderWeekBarChart();
-
-  const subjTotals={};
-  sessions.forEach(s=>{ subjTotals[s.subject]=(subjTotals[s.subject]||0)+s.duration; });
+  const subjTotals={};sessions.forEach(s=>{subjTotals[s.subject]=(subjTotals[s.subject]||0)+s.duration;});
   const top=Object.entries(subjTotals).sort((a,b)=>b[1]-a[1]);
-  document.getElementById('subject-bars').innerHTML=!top.length
-    ?`<div class="empty-state" style="padding:20px 0">No data yet</div>`
-    :top.map(([id,dur])=>{
-      const sub=getSubject(id);
-      const pct=all?Math.round(dur/all*100):0;
-      return `<div class="subj-bar-row">
-        <div class="subj-bar-top">
-          <div class="subj-bar-name"><div class="dot" style="background:${sub.color}"></div>${sub.icon} ${sub.label}</div>
-          <div class="subj-bar-val">${fmtShort(dur)} · ${pct}%</div>
-        </div>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${sub.color}"></div></div>
-      </div>`;
-    }).join('');
-
-  document.getElementById('heatmap').innerHTML=Array.from({length:7},(_,i)=>{
-    const d=new Date(); d.setDate(d.getDate()-(6-i));
-    const key=d.toLocaleDateString('sv-SE');
-    const dur=byDate[key]||0;
-    const intensity=Math.min(dur/7200,1);
-    const alpha=0.08+intensity*0.85;
-    return `<div class="heat-cell">
-      <div class="heat-block" style="background:rgba(255,${Math.round(intensity*30)},${Math.round(intensity*60)},${alpha});border-color:rgba(255,0,51,${0.1+intensity*0.5})" title="${fmtDate(key)}: ${fmtShort(dur)}"></div>
-      <div class="heat-day">${d.toLocaleDateString([],{weekday:'narrow'})}</div>
-    </div>`;
-  }).join('');
+  document.getElementById('subject-bars').innerHTML=!top.length?`<div class="empty-state" style="padding:12px 0">No data yet</div>`:top.map(([id,dur])=>{const sub=getSubject(id);const pct=all?Math.round(dur/all*100):0;return`<div class="subj-bar-row"><div class="subj-bar-top"><div class="subj-bar-name"><div class="dot" style="background:${sub.color};width:7px;height:7px;border-radius:50%;"></div>${sub.icon} ${sub.label}</div><div class="subj-bar-val">${fmtShort(dur)} · ${pct}%</div></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${sub.color}"></div></div></div>`;}).join('');
+  const heatByDate={};sessions.forEach(s=>{heatByDate[s.date]=(heatByDate[s.date]||0)+s.duration;});
+  document.getElementById('heatmap').innerHTML=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));const key=d.toLocaleDateString('sv-SE');const dur=heatByDate[key]||0;const intensity=Math.min(dur/7200,1);const alpha=0.08+intensity*0.85;return`<div class="heat-cell"><div class="heat-block" style="background:rgba(255,${Math.round(intensity*30)},${Math.round(intensity*60)},${alpha});border-color:rgba(255,0,51,${0.1+intensity*0.5})" title="${fmtDate(key)}: ${fmtShort(dur)}"></div><div class="heat-day">${d.toLocaleDateString([],{weekday:'narrow'})}</div></div>`;}).join('');
 }
-
-// ── DELETE ──
-function deleteSession(id){
-  if(!confirm('Delete this session?')) return;
-  sessions=sessions.filter(s=>s.id!==id);
-  saveSessions(sessions);
-  renderAll();
-  showToast('🗑️ Session deleted');
+function renderWeekBarChart(){
+  const MAX_SEC=12*3600,CH=160;
+  const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push({key:d.toLocaleDateString('sv-SE'),label:d.toLocaleDateString([],{weekday:'short'})});}
+  const byDate={};sessions.forEach(s=>{if(!byDate[s.date])byDate[s.date]={};byDate[s.date][s.subject]=(byDate[s.date][s.subject]||0)+s.duration;});
+  const gridLines=Array.from({length:13},(_,i)=>`<div class="week-grid-line" style="bottom:${(i/12)*100}%;"></div>`).join('');
+  const yLabels=Array.from({length:7},(_,i)=>`<div class="week-y-label">${i*2}h</div>`).join('');
+  const barsHTML=days.map(({key,label})=>{const dayData=byDate[key]||{};const totalSec=Math.min(Object.values(dayData).reduce((a,v)=>a+v,0),MAX_SEC);const barH=Math.round((totalSec/MAX_SEC)*CH);const segs=SUBJECTS.filter(sub=>dayData[sub.id]).map(sub=>{const segH=Math.round((Math.min(dayData[sub.id],MAX_SEC)/MAX_SEC)*CH);return`<div class="week-bar-seg" style="background:${sub.color};height:${segH}px;" title="${sub.label}: ${fmtShort(dayData[sub.id])}"></div>`;}).join('');const isToday=key===todayKey();return`<div class="week-bar-col"><div style="height:${CH}px;display:flex;align-items:flex-end;width:100%;"><div class="week-bar-stack" style="height:${barH}px;${isToday?'box-shadow:0 0 0 1px rgba(255,0,51,0.5);':''}">${segs||`<div style="height:2px;background:var(--bg3);width:100%;"></div>`}</div></div><div class="week-day-label" style="${isToday?'color:var(--text);font-weight:700;':''}">${label}</div><div class="week-day-total">${totalSec?fmtShort(totalSec):''}</div></div>`;}).join('');
+  const weekKeys=days.map(d=>d.key);const usedSubjects=SUBJECTS.filter(sub=>weekKeys.some(k=>byDate[k]&&byDate[k][sub.id]));
+  const legendHTML=usedSubjects.map(sub=>`<div class="legend-item"><div class="legend-dot" style="background:${sub.color}"></div>${sub.icon} ${sub.label}</div>`).join('');
+  document.getElementById('week-bar-chart').innerHTML=`<div class="week-chart-wrap"><div class="week-y-axis" style="height:${CH+22}px;">${yLabels}</div><div class="week-bars-area" style="flex:1;"><div class="week-grid-lines" style="height:${CH}px;">${gridLines}</div><div class="week-bars-row" style="height:${CH}px;gap:6px;">${barsHTML}</div><div style="height:22px;"></div></div></div>${usedSubjects.length?`<div class="week-chart-legend">${legendHTML}</div>`:''}`;
 }
-
-// ── BACKUP & RESTORE ──
-function updateBackupInfo(){
-  const info=document.getElementById('backup-info');
-  if(!info) return;
-  const count=sessions.length;
-  const size=(JSON.stringify(sessions).length/1024).toFixed(1);
-  const dates=sessions.length?[sessions[sessions.length-1].date,sessions[0].date]:[];
-  if(!count){ info.textContent='No sessions to backup yet.'; return; }
-  info.innerHTML=`<strong>${count}</strong> sessions · <strong>${size} KB</strong>${dates.length?` · ${fmtDate(dates[0])} → ${fmtDate(dates[1])}`:''}`;
-}
-function exportBackup(){
-  if(!sessions.length){ showToast('⚠️ No sessions to export','error'); return; }
-  const data={version:1,exportedAt:new Date().toISOString(),sessions};
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url; a.download=`study-backup-${todayKey()}.json`; a.click();
-  URL.revokeObjectURL(url);
-  showToast(`✅ Backup downloaded — ${sessions.length} sessions`);
-}
-function importBackup(event){
-  const file=event.target.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=(e)=>{
-    try {
-      const data=JSON.parse(e.target.result);
-      const imported=Array.isArray(data)?data:(data.sessions||[]);
-      if(!imported.length){ showToast('⚠️ No sessions found in file','error'); return; }
-      const existingIds=new Set(sessions.map(s=>s.id));
-      const newOnes=imported.filter(s=>!existingIds.has(s.id));
-      sessions=[...sessions,...newOnes].sort((a,b)=>b.startTime-a.startTime);
-      saveSessions(sessions); renderAll();
-      showToast(`✅ Restored ${newOnes.length} new sessions`);
-    } catch(err){ showToast('❌ Invalid backup file','error'); }
-  };
-  reader.readAsText(file);
-  event.target.value='';
-}
-function clearAllData(){
-  if(!confirm('Delete ALL sessions permanently? Export a backup first!')) return;
-  if(!confirm('Are you sure? This cannot be undone.')) return;
-  sessions=[]; saveSessions(sessions); renderAll();
-  showToast('🗑️ All data cleared');
-}
-
-// ── NAV ──
-function switchView(name,btn){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('view-'+name).classList.add('active');
-  if(btn) btn.classList.add('active');
-  if(name==='backup') updateBackupInfo();
-}
-
-// ── INIT ──
-window.addEventListener('load',()=>{ renderChips(); renderAll(); });
+function updateBackupInfo(){const info=document.getElementById('backup-info');if(!info)return;const count=sessions.length;if(!count){info.textContent='No sessions to backup yet.';return;}const size=(JSON.stringify(sessions).length/1024).toFixed(1);info.innerHTML=`<strong>${count}</strong> sessions · <strong>${size} KB</strong>`;}
+function exportBackup(){if(!sessions.length){showToast('⚠️ No sessions to export','error');return;}const data={version:2,exportedAt:new Date().toISOString(),sessions,chapters};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`study-backup-${todayKey()}.json`;a.click();URL.revokeObjectURL(url);showToast(`✅ Backup downloaded — ${sessions.length} sessions`);}
+function importBackup(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=(e)=>{try{const data=JSON.parse(e.target.result);const imported=Array.isArray(data)?data:(data.sessions||[]);if(!imported.length){showToast('⚠️ No sessions found','error');return;}const existingIds=new Set(sessions.map(s=>s.id));const newOnes=imported.filter(s=>!existingIds.has(s.id));sessions=[...sessions,...newOnes].sort((a,b)=>b.startTime-a.startTime);saveSessions(sessions);if(data.chapters){Object.keys(data.chapters).forEach(k=>{if(!chapters[k])chapters[k]=data.chapters[k];});saveChapters(chapters);}renderAll();showToast(`✅ Restored ${newOnes.length} new sessions`);}catch(err){showToast('❌ Invalid backup file','error');}};reader.readAsText(file);event.target.value='';}
+function clearAllData(){if(!confirm('Delete ALL sessions permanently? Export a backup first!'))return;if(!confirm('Are you sure? This cannot be undone.'))return;sessions=[];saveSessions(sessions);renderAll();showToast('🗑️ All data cleared');}
+const VIEW_TITLES={timer:'Timer',chapters:'Chapters & Subtopics',log:'Session Log',stats:'Analytics',backup:'Backup & Restore'};
+function switchView(name,btn){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));document.getElementById('view-'+name).classList.add('active');if(btn)btn.classList.add('active');document.getElementById('topbar-title').textContent=VIEW_TITLES[name]||name;if(name==='backup')updateBackupInfo();if(name==='chapters'){renderChapterTree();renderChapterDetail();}if(name==='stats')renderStatsView();}
+function renderAll(){renderTopStats();renderTodayBlocks();renderLog();renderStatsView();updateBackupInfo();}
+window.addEventListener('load',()=>{
+  document.getElementById('topbar-date').textContent=new Date().toLocaleDateString([],{weekday:'long',month:'short',day:'numeric'});
+  renderChips();populateChapterSelect();renderAll();
+  openSubjects['physics']=true;renderChapterTree();
+});
 </script>
 </body>
 </html>
