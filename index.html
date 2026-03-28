@@ -69,6 +69,12 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .fab.stop{background:#1c1c1c;color:#ff4444;border:2px solid #ff4444;}
 .fab.stop:hover{background:#2a1111;}
 .fab:active{transform:scale(0.95)!important;}
+
+/* Manual Log button below timer FAB */
+.manual-log-btn{margin-top:14px;background:none;border:1px solid var(--border2);border-radius:8px;color:var(--text3);font-size:11px;font-weight:600;font-family:'Inter',sans-serif;padding:7px 16px;cursor:pointer;transition:var(--tr);display:inline-flex;align-items:center;gap:6px;}
+.manual-log-btn svg{width:13px;height:13px;}
+.manual-log-btn:hover{border-color:rgba(255,0,170,0.5);color:var(--text2);}
+
 .sel-panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;}
 .sel-section{margin-bottom:16px;}
 .sel-section:last-child{margin-bottom:0;}
@@ -102,9 +108,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .session-top{display:flex;align-items:center;gap:10px;width:100%;}
 .session-bar{width:3px;height:34px;border-radius:2px;flex-shrink:0;}
 .session-info{flex:1;}
-.session-subj{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;display:flex;align-items:center;gap:6px;}
+.session-subj{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
 .session-chapter-tag{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500;}
 .session-subtopic-tag{font-size:10px;color:var(--text3);padding:2px 7px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;font-weight:500;}
+.session-manual-tag{font-size:10px;color:#ffb74d;padding:2px 7px;background:rgba(255,183,77,0.1);border:1px solid rgba(255,183,77,0.3);border-radius:10px;font-weight:500;}
 .session-time{font-size:10px;color:var(--text3);}
 .session-dur{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--text2);}
 .del-btn{background:none;border:none;cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:var(--tr);flex-shrink:0;}
@@ -206,6 +213,37 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .btn:hover{opacity:0.85;}
 .backup-info{font-size:11px;color:var(--text3);margin-top:8px;}
 .danger-zone{border-color:rgba(255,68,68,0.2);}
+
+/* ── MANUAL LOG MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2000;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.active{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:28px;width:420px;max-width:90vw;animation:modalIn 0.2s cubic-bezier(.4,0,.2,1);}
+@keyframes modalIn{from{opacity:0;transform:translateY(12px) scale(0.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.modal-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.modal-title-icon{width:28px;height:28px;border-radius:8px;background:rgba(255,183,77,0.15);border:1px solid rgba(255,183,77,0.3);display:flex;align-items:center;justify-content:center;font-size:13px;}
+.modal-close{background:none;border:none;color:var(--text3);cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;transition:var(--tr);}
+.modal-close:hover{background:var(--surface);color:var(--text);}
+.modal-field{margin-bottom:14px;}
+.modal-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.modal-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:9px 12px;outline:none;transition:border-color 0.2s;}
+.modal-input:focus{border-color:rgba(255,183,77,0.5);}
+.modal-input option{background:var(--bg2);}
+.modal-dur-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.modal-dur-unit{display:flex;flex-direction:column;gap:5px;}
+.modal-dur-label{font-size:10px;color:var(--text3);text-align:center;}
+.modal-dur-input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;padding:10px 8px;outline:none;text-align:center;width:100%;transition:border-color 0.2s;}
+.modal-dur-input:focus{border-color:rgba(255,183,77,0.5);}
+.modal-subj-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.modal-footer{display:flex;gap:8px;margin-top:20px;}
+.modal-btn{flex:1;padding:10px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;transition:var(--tr);}
+.modal-btn.save{background:linear-gradient(135deg,#ffb74d,#ff8c00);color:#000;}
+.modal-btn.save:hover{opacity:0.9;transform:translateY(-1px);}
+.modal-btn.cancel{background:var(--surface2);color:var(--text2);border:1px solid var(--border);}
+.modal-btn.cancel:hover{border-color:#555;color:var(--text);}
+.modal-preview{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:12px;font-size:11px;color:var(--text3);display:flex;align-items:center;gap:6px;}
+.modal-preview-dur{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#ffb74d;}
+
 /* ── FULLSCREEN TIMER OVERLAY ── */
 .fs-overlay{display:none;position:fixed;inset:0;background:var(--bg);z-index:1000;flex-direction:column;align-items:center;justify-content:center;animation:fsIn 0.35s cubic-bezier(.4,0,.2,1);}
 .fs-overlay.active{display:flex;}
@@ -283,6 +321,12 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
             <button class="fab start" id="fab-btn" onclick="toggleTimer()">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             </button>
+            <div style="margin-top:14px;">
+              <button class="manual-log-btn" onclick="openManualLog()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Manual Log
+              </button>
+            </div>
           </div>
           <div style="margin-top:12px;" id="today-blocks"></div>
         </div>
@@ -390,6 +434,75 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
   <div class="fs-hint">Press Stop to save session</div>
 </div>
 
+<!-- MANUAL LOG MODAL -->
+<div class="modal-overlay" id="manual-modal" onclick="handleModalOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">
+        <div class="modal-title-icon">✏️</div>
+        Manual Log
+      </div>
+      <button class="modal-close" onclick="closeManualLog()">×</button>
+    </div>
+
+    <div class="modal-field">
+      <div class="modal-label">Subject</div>
+      <div class="modal-subj-grid" id="modal-chips"></div>
+    </div>
+
+    <div class="modal-field">
+      <div class="modal-label">Chapter <span style="color:var(--text3);font-weight:400;">(optional)</span></div>
+      <select class="modal-input" id="modal-chapter-select" onchange="onModalChapterChange()">
+        <option value="">— Select Chapter —</option>
+      </select>
+    </div>
+
+    <div class="modal-field">
+      <div class="modal-label">Subtopic <span style="color:var(--text3);font-weight:400;">(optional)</span></div>
+      <select class="modal-input" id="modal-subtopic-select">
+        <option value="">— Select Subtopic —</option>
+      </select>
+    </div>
+
+    <div class="modal-field">
+      <div class="modal-label">Date</div>
+      <input type="date" class="modal-input" id="modal-date">
+    </div>
+
+    <div class="modal-field">
+      <div class="modal-label">Duration</div>
+      <div class="modal-dur-row">
+        <div class="modal-dur-unit">
+          <input type="number" class="modal-dur-input" id="modal-hrs" min="0" max="23" placeholder="0" oninput="updateModalPreview()">
+          <div class="modal-dur-label">Hours</div>
+        </div>
+        <div class="modal-dur-unit">
+          <input type="number" class="modal-dur-input" id="modal-mins" min="0" max="59" placeholder="0" oninput="updateModalPreview()">
+          <div class="modal-dur-label">Minutes</div>
+        </div>
+        <div class="modal-dur-unit">
+          <input type="number" class="modal-dur-input" id="modal-secs" min="0" max="59" placeholder="0" oninput="updateModalPreview()">
+          <div class="modal-dur-label">Seconds</div>
+        </div>
+      </div>
+      <div class="modal-preview" id="modal-preview">
+        <span>Total:</span>
+        <span class="modal-preview-dur" id="modal-preview-dur">0m</span>
+      </div>
+    </div>
+
+    <div class="modal-field">
+      <div class="modal-label">Notes <span style="color:var(--text3);font-weight:400;">(optional)</span></div>
+      <input type="text" class="modal-input" id="modal-notes" placeholder="What did you study?">
+    </div>
+
+    <div class="modal-footer">
+      <button class="modal-btn cancel" onclick="closeManualLog()">Cancel</button>
+      <button class="modal-btn save" onclick="saveManualLog()">Save Session</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -410,9 +523,9 @@ const ICONS={
   check:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`,
 };
 function getSubject(id){return SUBJECTS.find(s=>s.id===id)||SUBJECTS[0];}
-function loadSessions(){try{const r=localStorage.getItem(STORAGE_KEY);return r?:[]; }catch(e){return[];}}
+function loadSessions(){try{const r=localStorage.getItem(STORAGE_KEY);return r?JSON.parse(r):[]; }catch(e){return[];}}
 function saveSessions(arr){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(arr));}catch(e){showToast('⚠️ Storage full!','error');}}
-function loadChapters(){try{const r=localStorage.getItem(CHAPTERS_KEY);return r?:{};} catch(e){return{};}}
+function loadChapters(){try{const r=localStorage.getItem(CHAPTERS_KEY);return r?JSON.parse(r):{};} catch(e){return{};}}
 function saveChapters(obj){try{localStorage.setItem(CHAPTERS_KEY,JSON.stringify(obj));}catch(e){showToast('⚠️ Storage full!','error');}}
 let sessions=loadSessions();
 let chapters=loadChapters();
@@ -421,6 +534,10 @@ let selectedSubject=SUBJECTS[0];
 let selectedChapterId='',selectedSubtopicId='';
 let selectedChapterDetailKey=null;
 let openSubjects={};
+
+// Manual log state
+let modalSubject=SUBJECTS[0];
+
 function fmtDur(s){const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=s%60;return`${pad(h)}:${pad(m)}:${pad(sc)}`;}
 function pad(n){return String(n).padStart(2,'0');}
 function fmtShort(s){if(!s)return'0m';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);if(h>0&&m>0)return`${h}h ${m}m`;if(h>0)return`${h}h`;return`${m}m`;}
@@ -458,7 +575,6 @@ function startTimer(){
   const lbl=ch?(st?`${ch.name} › ${st.name}`:ch.name):'';
   document.getElementById('chapter-label').textContent=lbl;
   document.getElementById('subject-row').style.display='none';
-  // Fullscreen
   document.getElementById('fs-dot').style.background=selectedSubject.color;
   document.getElementById('fs-subject-name').textContent=selectedSubject.icon+' '+selectedSubject.label;
   document.getElementById('fs-chapter-info').textContent=lbl;
@@ -519,11 +635,94 @@ function cancelAddSubtopic(){document.getElementById('add-subtopic-form').classL
 function saveSubtopic(){const v=document.getElementById('add-subtopic-input').value.trim();const chapId=document.getElementById('chapter-select').value;if(!v||!chapId){showToast('⚠️ Select a chapter first','error');return;}addSubtopic(selectedSubject.id,chapId,v);document.getElementById('add-subtopic-input').value='';cancelAddSubtopic();onChapterChange();renderChapterTree();showToast(`✅ Subtopic added: ${v}`);}
 function renderChips(){document.getElementById('chips').innerHTML=SUBJECTS.map(s=>`<button class="subj-btn ${s.id===selectedSubject.id?'selected':''}" style="${s.id===selectedSubject.id?`background:${s.color};border-color:${s.color}`:''}" onclick="selectSubject('${s.id}')"><div class="dot" style="background:${s.color}"></div>${s.icon} ${s.label}</button>`).join('');}
 function selectSubject(id){selectedSubject=getSubject(id);renderChips();populateChapterSelect();}
+
+// ── MANUAL LOG ──
+function openManualLog(){
+  // Set today's date as default
+  document.getElementById('modal-date').value=todayKey();
+  document.getElementById('modal-hrs').value='';
+  document.getElementById('modal-mins').value='';
+  document.getElementById('modal-secs').value='';
+  document.getElementById('modal-notes').value='';
+  document.getElementById('modal-preview-dur').textContent='0m';
+  modalSubject=selectedSubject;
+  renderModalChips();
+  populateModalChapterSelect();
+  document.getElementById('manual-modal').classList.add('active');
+  setTimeout(()=>document.getElementById('modal-hrs').focus(),100);
+}
+function closeManualLog(){document.getElementById('manual-modal').classList.remove('active');}
+function handleModalOverlayClick(e){if(e.target===document.getElementById('manual-modal'))closeManualLog();}
+function renderModalChips(){
+  document.getElementById('modal-chips').innerHTML=SUBJECTS.map(s=>`<button class="subj-btn ${s.id===modalSubject.id?'selected':''}" style="${s.id===modalSubject.id?`background:${s.color};border-color:${s.color}`:''}" onclick="selectModalSubject('${s.id}')"><div class="dot" style="background:${s.color}"></div>${s.icon} ${s.label}</button>`).join('');
+}
+function selectModalSubject(id){modalSubject=getSubject(id);renderModalChips();populateModalChapterSelect();}
+function populateModalChapterSelect(){
+  const sel=document.getElementById('modal-chapter-select');
+  const chs=getSubjChapters(modalSubject.id);
+  sel.innerHTML='<option value="">— Select Chapter —</option>'+chs.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  sel.value='';
+  document.getElementById('modal-subtopic-select').innerHTML='<option value="">— Select Subtopic —</option>';
+}
+function onModalChapterChange(){
+  const chapId=document.getElementById('modal-chapter-select').value;
+  const sel=document.getElementById('modal-subtopic-select');
+  if(!chapId){sel.innerHTML='<option value="">— Select Subtopic —</option>';return;}
+  const ch=getChapter(modalSubject.id,chapId);
+  const sts=ch?ch.subtopics:[];
+  sel.innerHTML='<option value="">— Select Subtopic —</option>'+sts.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  sel.value='';
+}
+function updateModalPreview(){
+  const h=parseInt(document.getElementById('modal-hrs').value)||0;
+  const m=parseInt(document.getElementById('modal-mins').value)||0;
+  const s=parseInt(document.getElementById('modal-secs').value)||0;
+  const total=h*3600+m*60+s;
+  document.getElementById('modal-preview-dur').textContent=total?fmtDur(total):'0m';
+}
+function saveManualLog(){
+  const h=parseInt(document.getElementById('modal-hrs').value)||0;
+  const m=parseInt(document.getElementById('modal-mins').value)||0;
+  const s=parseInt(document.getElementById('modal-secs').value)||0;
+  const dur=h*3600+m*60+s;
+  if(dur<60){showToast('⚠️ Minimum 1 minute required','error');return;}
+  const dateVal=document.getElementById('modal-date').value;
+  if(!dateVal){showToast('⚠️ Pick a date','error');return;}
+  const chapId=document.getElementById('modal-chapter-select').value;
+  const stId=document.getElementById('modal-subtopic-select').value;
+  const ch=chapId?getChapter(modalSubject.id,chapId):null;
+  const st=(chapId&&stId)?getSubtopic(modalSubject.id,chapId,stId):null;
+  // Use noon of the selected date as the reference time so day grouping works
+  const dayTs=new Date(dateVal+'T12:00:00').getTime();
+  const session={
+    id:Date.now(),
+    subject:modalSubject.id,
+    startTime:dayTs,
+    endTime:dayTs+dur*1000,
+    date:dateVal,
+    duration:dur,
+    notes:document.getElementById('modal-notes').value.trim(),
+    chapterId:chapId||null,
+    chapterName:ch?ch.name:null,
+    subtopicId:stId||null,
+    subtopicName:st?st.name:null,
+    manual:true,
+  };
+  sessions.unshift(session);
+  sessions.sort((a,b)=>b.startTime-a.startTime);
+  saveSessions(sessions);
+  closeManualLog();
+  renderAll();
+  showToast(`✅ Manual session logged — ${fmtDur(dur)}`);
+}
+
 function sessionHTML(s){
   const sub=getSubject(s.subject);
   const chTag=s.chapterName?`<span class="session-chapter-tag" style="background:${sub.color}22;color:${sub.color};border:1px solid ${sub.color}44">${s.chapterName}</span>`:'';
   const stTag=s.subtopicName?`<span class="session-subtopic-tag">${s.subtopicName}</span>`:'';
-  return`<div class="session-row"><div class="session-top"><div class="session-bar" style="background:${sub.color}"></div><div class="session-info"><div class="session-subj">${sub.icon} ${sub.label} ${chTag}${stTag}</div><div class="session-time">${fmtTime(s.startTime)} – ${fmtTime(s.endTime)}</div></div><div class="session-dur">${fmtDur(s.duration)}</div><button class="del-btn" onclick="deleteSession(${s.id})">${ICONS.delete}</button></div>${makeNotesRow(s)}</div>`;
+  const manTag=s.manual?`<span class="session-manual-tag">manual</span>`:'';
+  const timeStr=s.manual?`Logged manually`:`${fmtTime(s.startTime)} – ${fmtTime(s.endTime)}`;
+  return`<div class="session-row"><div class="session-top"><div class="session-bar" style="background:${sub.color}"></div><div class="session-info"><div class="session-subj">${sub.icon} ${sub.label} ${chTag}${stTag}${manTag}</div><div class="session-time">${timeStr}</div></div><div class="session-dur">${fmtDur(s.duration)}</div><button class="del-btn" onclick="deleteSession(${s.id})">${ICONS.delete}</button></div>${makeNotesRow(s)}</div>`;
 }
 function makeNotesRow(s){const notes=(s.notes||'').trim();return`<div class="notes-wrap" id="nw-${s.id}"><div class="notes-disp ${notes?'':'empty'}" onclick="editNotes(${s.id})" id="nd-${s.id}">${notes||'+ Add what you studied…'}</div></div>`;}
 function editNotes(id){
@@ -621,6 +820,8 @@ window.addEventListener('load',()=>{
   renderChips();populateChapterSelect();renderAll();
   openSubjects['physics']=true;renderChapterTree();
 });
+// ESC to close modal
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeManualLog();});
 </script>
 </body>
 </html>
