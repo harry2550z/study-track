@@ -410,9 +410,9 @@ const ICONS={
   check:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`,
 };
 function getSubject(id){return SUBJECTS.find(s=>s.id===id)||SUBJECTS[0];}
-function loadSessions(){try{const r=localStorage.getItem(STORAGE_KEY);return r?JSON.parse(r):[]; }catch(e){return[];}}
+function loadSessions(){try{const r=localStorage.getItem(STORAGE_KEY);return r?:[]; }catch(e){return[];}}
 function saveSessions(arr){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(arr));}catch(e){showToast('⚠️ Storage full!','error');}}
-function loadChapters(){try{const r=localStorage.getItem(CHAPTERS_KEY);return r?JSON.parse(r):{};} catch(e){return{};}}
+function loadChapters(){try{const r=localStorage.getItem(CHAPTERS_KEY);return r?:{};} catch(e){return{};}}
 function saveChapters(obj){try{localStorage.setItem(CHAPTERS_KEY,JSON.stringify(obj));}catch(e){showToast('⚠️ Storage full!','error');}}
 let sessions=loadSessions();
 let chapters=loadChapters();
