@@ -387,7 +387,37 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .stt-val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--text2);min-width:70px;text-align:right;}
 .stt-empty{font-size:12px;color:var(--text3);text-align:center;padding:10px 0;}
 
+
+/* ── EXAM STATS ── */
+.esp-wrap{margin:0 0 10px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.esp-hdr{padding:9px 12px;border-bottom:1px solid var(--border);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.esp-tabs{display:flex;}
+.esp-tab{background:none;border:1px solid var(--border);color:var(--text3);font-size:10px;font-weight:600;padding:3px 8px;cursor:pointer;font-family:'Inter',sans-serif;transition:var(--tr);}
+.esp-tab:first-child{border-radius:6px 0 0 6px;}
+.esp-tab:last-child{border-radius:0 6px 6px 0;}
+.esp-tab+.esp-tab{border-left:none;}
+.esp-tab.on{background:var(--grad);color:#fff;border-color:transparent;}
+.esp-row{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.esp-row:last-child{border-bottom:none;}
+.esp-sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.esp-sname{font-size:11px;flex:1;}
+.esp-btrack{flex:2;height:4px;background:var(--bg2);border-radius:2px;overflow:hidden;}
+.esp-bfill{height:100%;border-radius:2px;transition:width 0.4s ease;}
+.esp-stime{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);min-width:52px;text-align:right;}
+.esp-total-row{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-top:1px solid var(--border);}
+.esp-total-label{font-size:10px;color:var(--text3);}
+.esp-total-val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.exam-row.active-exam{background:rgba(255,0,51,0.08);border-left:2px solid var(--red);}
+
 </style>
+
+<link rel="manifest" id="pwa-manifest">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="StudyTrack">
+
 </head>
 <body>
 
@@ -435,6 +465,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
   <div class="topbar">
     <div class="topbar-title" id="topbar-title">Timer</div>
     <div class="topbar-tag" id="topbar-date"></div>
+    <button id="pwa-install-btn" onclick="pwaInstall()" style="display:none;background:var(--grad);border:none;border-radius:8px;color:#fff;font-size:11px;font-weight:600;padding:5px 12px;cursor:pointer;font-family:'Inter',sans-serif;">⬇️ Install App</button>
   </div>
   <div class="content">
 
@@ -607,6 +638,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
               <button class="btn primary" style="font-size:10px;padding:3px 10px;" onclick="openExamModal()">+ Add</button>
             </div>
             <div id="exam-list"></div>
+            <div id="esp-wrap" style="display:none;" class="esp-wrap">
+              <div class="esp-hdr"><span id="esp-exam-name">Stats</span><div class="esp-tabs"><button class="esp-tab on" onclick="setEspTab('week',this)">Week</button><button class="esp-tab" onclick="setEspTab('month',this)">Month</button><button class="esp-tab" onclick="setEspTab('all',this)">All Time</button></div></div>
+              <div id="esp-body"></div>
+            </div>
           </div>
           <div class="side-box">
             <div class="side-hdr">
@@ -667,6 +702,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
         <div class="modal-field">
           <div class="modal-label">Color</div>
           <div class="swatch-row" id="ei-colors"></div>
+        </div>
+        <div class="modal-field">
+          <div class="modal-label">Track Subjects <span style="color:var(--text3);font-weight:400;">(tap to select)</span></div>
+          <div id="ei-subj-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:4px;"></div>
         </div>
         <div class="modal-footer">
           <button class="modal-btn cancel" onclick="closeExamModal()">Cancel</button>
@@ -1507,7 +1546,8 @@ function renderExamList(){
     const ed=new Date(ex.date+'T00:00:00');
     const diff=Math.ceil((ed-today)/86400000);
     const past=diff<0;
-    const row=document.createElement('div');row.className='exam-row';
+    const row=document.createElement('div');row.className='exam-row';row.style.cursor='pointer';
+    const _i=i;row.addEventListener('click',function(e){if(e.target.classList.contains('exam-del'))return;selectExam(_i);});
     row.innerHTML=`<div class="exam-bar" style="background:${ex.color};min-height:36px;"></div><div class="exam-info"><div class="exam-name">${ex.name}</div><div class="exam-dt">${ed.toLocaleDateString([],{day:'numeric',month:'short',year:'numeric'})}</div></div><div class="exam-days ${past?'past':''}">${past?'Done':diff===0?'TODAY':diff+'d'}</div><button class="exam-del" onclick="delExam(${i})">✕</button>`;
     list.appendChild(row);
   });
@@ -1556,6 +1596,14 @@ function openExamModal(){
   document.getElementById('ei-date').value='';
   ePickColor=CAL_COLORS[4];
   buildSwatches('ei-colors',CAL_COLORS,ePickColor,c=>{ePickColor=c;});
+  const sg=document.getElementById('ei-subj-grid');sg.innerHTML='';
+  SUBJECTS.forEach(s=>{
+    const b=document.createElement('button');
+    b.className='subj-btn';b.style.cssText='font-size:11px;padding:5px 8px;';
+    b.innerHTML=`<span class="dot" style="width:7px;height:7px;border-radius:50%;background:${s.color}"></span>${s.icon||''} ${s.label}`;
+    b.dataset.sid=s.id;b.onclick=()=>b.classList.toggle('selected');
+    sg.appendChild(b);
+  });
   document.getElementById('exam-modal').classList.add('active');
   setTimeout(()=>document.getElementById('ei-name').focus(),80);
 }
@@ -1564,7 +1612,8 @@ function saveExam(){
   const name=document.getElementById('ei-name').value.trim();
   const date=document.getElementById('ei-date').value;
   if(!name||!date){showToast('Enter name and date!','error');return;}
-  calExams.push({name,date,color:ePickColor});
+  const selSubjs=[...document.querySelectorAll('#ei-subj-grid .selected')].map(b=>b.dataset.sid);
+  calExams.push({name,date,color:ePickColor,subjects:selSubjs.length?selSubjs:SUBJECTS.map(s=>s.id)});
   saveCalExams();closeExamModal();renderCalendar();renderTimerExamWidget();showToast('✅ Exam added: '+name);
 }
 
@@ -1680,6 +1729,109 @@ function initSttDates(){
     from.value=d.toLocaleDateString('sv-SE');
   }
   renderSubjectTimeStats();
+}
+
+
+// ── PWA ──
+(function initPWA(){
+  const manifest={
+    name:"StudyTrack",
+    short_name:"StudyTrack",
+    description:"JEE Study Tracker",
+    start_url:".",
+    display:"standalone",
+    background_color:"#0a0a0a",
+    theme_color:"#0a0a0a",
+    icons:[
+      {src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23ff0033'/%3E%3Ctext y='.9em' font-size='80' x='10'%3E📚%3C/text%3E%3C/svg%3E",sizes:"192x192",type:"image/svg+xml"},
+      {src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23ff0033'/%3E%3Ctext y='.9em' font-size='80' x='10'%3E📚%3C/text%3E%3C/svg%3E",sizes:"512x512",type:"image/svg+xml"}
+    ]
+  };
+  const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  document.getElementById('pwa-manifest').href=url;
+
+  // Inline SW via blob
+  const swCode=`
+    const CACHE='studytrack-v1';
+    const ASSETS=['/'];
+    self.addEventListener('install',e=>{self.skipWaiting();});
+    self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));});
+    self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});
+  `;
+  const swBlob=new Blob([swCode],{type:'application/javascript'});
+  const swUrl=URL.createObjectURL(swBlob);
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register(swUrl,{scope:'./'}).catch(()=>{});
+  }
+
+  // Install prompt
+  let deferredPrompt=null;
+  window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault();deferredPrompt=e;
+    const btn=document.getElementById('pwa-install-btn');
+    if(btn)btn.style.display='inline-flex';
+  });
+  window.pwaInstall=function(){
+    if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.choice.then(()=>{deferredPrompt=null;});}
+  };
+})();
+
+
+// ── EXAM STATS PANEL ──
+let espActiveIdx=-1, espTab='week';
+
+function selectExam(idx){
+  espActiveIdx=idx;espTab='week';
+  document.querySelectorAll('.esp-tab').forEach((t,i)=>t.className='esp-tab'+(i===0?' on':''));
+  document.getElementById('esp-wrap').style.display='block';
+  renderEspBody();
+  document.querySelectorAll('.exam-row').forEach((r,i)=>{
+    r.classList.toggle('active-exam',i===idx);
+  });
+}
+
+function setEspTab(tab,btn){
+  espTab=tab;
+  document.querySelectorAll('.esp-tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  renderEspBody();
+}
+
+function renderEspBody(){
+  if(espActiveIdx<0)return;
+  const sorted=[...calExams].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const ex=sorted[espActiveIdx];
+  if(!ex)return;
+  document.getElementById('esp-exam-name').textContent='📊 '+ex.name;
+  const now=new Date();now.setHours(0,0,0,0);
+  let fromTime=0;
+  if(espTab==='week'){const d=new Date(now);d.setDate(d.getDate()-7);fromTime=d.getTime();}
+  else if(espTab==='month'){const d=new Date(now);d.setMonth(d.getMonth()-1);fromTime=d.getTime();}
+  const subjIds=ex.subjects&&ex.subjects.length?ex.subjects:SUBJECTS.map(s=>s.id);
+  const filtered=sessions.filter(s=>s.startTime>=fromTime&&subjIds.includes(s.subject));
+  const bySubj={};
+  filtered.forEach(s=>{if(!bySubj[s.subject])bySubj[s.subject]=0;bySubj[s.subject]+=(s.duration||0);});
+  const entries=Object.entries(bySubj).sort((a,b)=>b[1]-a[1]);
+  const maxSecs=entries.length?entries[0][1]:1;
+  const totalSecs=filtered.reduce((s,x)=>s+(x.duration||0),0);
+  let html='';
+  if(!entries.length){
+    html='<div style="padding:12px 14px;font-size:11px;color:var(--text3);">No sessions found in this range</div>';
+  } else {
+    entries.forEach(([sid,secs])=>{
+      const subj=SUBJECTS.find(s=>s.id===sid)||{label:sid,color:'#888',icon:'📚'};
+      const pct=maxSecs>0?Math.round(secs/maxSecs*100):0;
+      html+=`<div class="esp-row">
+        <div class="esp-sdot" style="background:${subj.color}"></div>
+        <div class="esp-sname">${subj.icon||''} ${subj.label||sid}</div>
+        <div class="esp-btrack"><div class="esp-bfill" style="width:${pct}%;background:${subj.color}"></div></div>
+        <div class="esp-stime">${fmtDur(secs)}</div>
+      </div>`;
+    });
+    html+=`<div class="esp-total-row"><div class="esp-total-label">${filtered.length} sessions</div><div class="esp-total-val">${fmtDur(totalSecs)}</div></div>`;
+  }
+  document.getElementById('esp-body').innerHTML=html;
 }
 
 </script>
