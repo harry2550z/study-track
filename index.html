@@ -353,6 +353,40 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .swatch:hover{transform:scale(1.15);}
 .swatch.on{border-color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,0.4);}
 
+
+/* ── TIMER EXAM WIDGET ── */
+.tew-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.tew-hdr{padding:10px 14px;border-bottom:1px solid var(--border);font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;}
+.tew-row{padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.tew-row:last-child{border-bottom:none;}
+.tew-bar{width:3px;border-radius:2px;align-self:stretch;flex-shrink:0;min-height:32px;}
+.tew-info{flex:1;min-width:0;}
+.tew-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tew-date{font-size:10px;color:var(--text3);margin-top:1px;}
+.tew-days{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex-shrink:0;text-align:right;}
+.tew-days-label{font-size:9px;color:var(--text3);text-align:right;font-weight:500;}
+.tew-today{font-size:12px;font-weight:700;color:#ff4444;flex-shrink:0;}
+.tew-past{font-size:11px;color:var(--text3);flex-shrink:0;}
+.tew-empty{padding:14px;text-align:center;font-size:11px;color:var(--text3);}
+
+
+/* ── SUBJECT TIME TRACKER ── */
+.stt-section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px;}
+.stt-section h3{font-size:13px;font-weight:600;margin-bottom:6px;}
+.stt-section p{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px;}
+.stt-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
+.stt-label{font-size:11px;color:var(--text3);font-weight:600;}
+.stt-date-input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:7px 10px;outline:none;transition:border-color 0.2s;}
+.stt-date-input:focus{border-color:rgba(255,0,51,0.5);}
+.stt-results{display:flex;flex-direction:column;gap:8px;}
+.stt-row{display:flex;align-items:center;gap:10px;}
+.stt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.stt-name{font-size:12px;font-weight:600;flex:1;}
+.stt-track{flex:2;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.stt-fill{height:100%;border-radius:3px;transition:width 0.5s ease;}
+.stt-val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--text2);min-width:70px;text-align:right;}
+.stt-empty{font-size:12px;color:var(--text3);text-align:center;padding:10px 0;}
+
 </style>
 </head>
 <body>
@@ -436,6 +470,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
             </div>
           </div>
           <div style="margin-top:12px;" id="today-blocks"></div>
+          <div id="timer-exam-widget" style="margin-top:10px;"></div>
         </div>
         <div class="sel-panel" id="subject-row">
           <div class="sel-section">
@@ -516,9 +551,9 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
     <div class="view" id="view-backup">
       <div class="backup-section">
         <h3>📤 Export Backup</h3>
-        <p>Download all your sessions as a <strong>.json</strong> file. Save it somewhere safe — Google Drive, WhatsApp to yourself, email, etc.</p>
+        <p>Download <strong>everything</strong> — sessions, chapters, subjects, calendar tasks, exam countdowns — as one <strong>.json</strong> file. Save to Google Drive, WhatsApp, email etc.</p>
         <div class="backup-info" id="backup-info"></div><br>
-        <button class="btn primary" onclick="exportBackup()">Download Backup</button>
+        <button class="btn primary" onclick="exportBackup()">⬇️ Download Full Backup</button>
       </div>
       <div class="backup-section">
         <h3>📥 Restore Backup</h3>
@@ -526,6 +561,20 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
         <input type="file" id="import-input" accept=".json" onchange="importBackup(event)">
         <button class="btn primary" onclick="document.getElementById('import-input').click()">Choose File</button>
       </div>
+
+      <div class="stt-section">
+        <h3>📊 Time Spent by Subject</h3>
+        <p>See total time spent per subject from a chosen start date — useful to track prep before an exam.</p>
+        <div class="stt-controls">
+          <span class="stt-label">FROM DATE:</span>
+          <input type="date" class="stt-date-input" id="stt-from" oninput="renderSubjectTimeStats()">
+          <span class="stt-label">TO DATE:</span>
+          <input type="date" class="stt-date-input" id="stt-to" oninput="renderSubjectTimeStats()">
+          <button class="btn primary" style="font-size:11px;padding:6px 14px;" onclick="sttSetExamRange()">📅 Pick Exam</button>
+        </div>
+        <div id="stt-results"></div>
+      </div>
+
       <div class="backup-section danger-zone">
         <h3>⚠️ Danger Zone</h3>
         <p>Permanently delete all your sessions from this device. Export a backup first!</p>
@@ -1225,11 +1274,24 @@ function renderWeekBarChart(){
 }
 function updateBackupInfo(){const info=document.getElementById('backup-info');if(!info)return;const count=sessions.length;if(!count){info.textContent='No sessions to backup yet.';return;}const size=(JSON.stringify(sessions).length/1024).toFixed(1);info.innerHTML=`<strong>${count}</strong> sessions · <strong>${size} KB</strong>`;}
 function exportBackup(){
-  if(!sessions.length){showToast('⚠️ No sessions to export','error');return;}
-  const data={version:3,exportedAt:new Date().toISOString(),sessions,chapters,subjects:SUBJECTS};
+  const data={
+    version:4,
+    exportedAt:new Date().toISOString(),
+    sessions,
+    chapters,
+    subjects:SUBJECTS,
+    calTasks,
+    calExams
+  };
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`study-backup-${todayKey()}.json`;a.click();URL.revokeObjectURL(url);
-  showToast(`✅ Backup downloaded — ${sessions.length} sessions`);
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;
+  a.download=`studytrack-full-backup-${todayKey()}.json`;
+  a.click();URL.revokeObjectURL(url);
+  const total=sessions.length;
+  const exams=calExams.length;
+  const tasks=Object.values(calTasks).reduce((s,a)=>s+a.length,0);
+  showToast(`✅ Full backup: ${total} sessions, ${exams} exams, ${tasks} tasks`);
 }
 function importBackup(event){
   const file=event.target.files[0];if(!file)return;
@@ -1237,22 +1299,54 @@ function importBackup(event){
   reader.onload=(e)=>{
     try{
       const data=JSON.parse(e.target.result);
+      let restoredSessions=0,restoredTasks=0,restoredExams=0,restoredSubjects=0;
+
+      // Sessions
       const imported=Array.isArray(data)?data:(data.sessions||[]);
-      if(!imported.length){showToast('⚠️ No sessions found','error');return;}
-      const existingIds=new Set(sessions.map(s=>s.id));
-      const newOnes=imported.filter(s=>!existingIds.has(s.id));
-      sessions=[...sessions,...newOnes].sort((a,b)=>b.startTime-a.startTime);
-      saveSessions(sessions);
-      if(data.chapters){Object.keys(data.chapters).forEach(k=>{if(!chapters[k])chapters[k]=data.chapters[k];});saveChapters(chapters);}
-      // Restore custom subjects from backup (v3+)
+      if(imported.length){
+        const existingIds=new Set(sessions.map(s=>s.id));
+        const newOnes=imported.filter(s=>!existingIds.has(s.id));
+        sessions=[...sessions,...newOnes].sort((a,b)=>b.startTime-a.startTime);
+        saveSessions(sessions);
+        restoredSessions=newOnes.length;
+      }
+
+      // Chapters
+      if(data.chapters){
+        Object.keys(data.chapters).forEach(k=>{if(!chapters[k])chapters[k]=data.chapters[k];});
+        saveChapters(chapters);
+      }
+
+      // Custom Subjects
       if(data.subjects&&Array.isArray(data.subjects)){
         const builtinIds=new Set(DEFAULT_SUBJECTS.map(s=>s.id));
         const customFromBackup=data.subjects.filter(s=>!builtinIds.has(s.id));
         const existingCustomIds=new Set(SUBJECTS.filter(s=>!s.builtin).map(s=>s.id));
-        customFromBackup.forEach(s=>{if(!existingCustomIds.has(s.id))SUBJECTS.push(s);});
+        customFromBackup.forEach(s=>{if(!existingCustomIds.has(s.id)){SUBJECTS.push(s);restoredSubjects++;}});
         persistSubjects();
       }
-      renderAll();showToast(`✅ Restored ${newOnes.length} new sessions`);
+
+      // Calendar Tasks
+      if(data.calTasks&&typeof data.calTasks==='object'){
+        Object.keys(data.calTasks).forEach(date=>{
+          if(!calTasks[date]) calTasks[date]=[];
+          const existingIds=new Set(calTasks[date].map(t=>t.id));
+          data.calTasks[date].forEach(t=>{if(!existingIds.has(t.id)){calTasks[date].push(t);restoredTasks++;}});
+        });
+        saveCalTasks();
+      }
+
+      // Calendar Exams
+      if(data.calExams&&Array.isArray(data.calExams)){
+        const existingExams=new Set(calExams.map(e=>e.name+'|'+e.date));
+        data.calExams.forEach(e=>{
+          if(!existingExams.has(e.name+'|'+e.date)){calExams.push(e);restoredExams++;}
+        });
+        saveCalExams();
+      }
+
+      renderAll();renderTimerExamWidget();
+      showToast(`✅ Restored: ${restoredSessions} sessions, ${restoredExams} exams, ${restoredTasks} tasks, ${restoredSubjects} subjects`);
     }catch(err){showToast('❌ Invalid backup file','error');}
   };
   reader.readAsText(file);event.target.value='';
@@ -1270,8 +1364,10 @@ function switchView(name,btn){
   if(name==='stats')renderStatsView();
   if(name==='subjects')renderSubjectsView();
   if(name==='calendar')renderCalendar();
+  if(name==='backup')initSttDates();
 }
-function renderAll(){renderTopStats();renderTodayBlocks();renderLog();renderStatsView();updateBackupInfo();}
+function renderAll(){
+  renderTimerExamWidget();renderTopStats();renderTodayBlocks();renderLog();renderStatsView();updateBackupInfo();}
 
 function toggleBrowserFS() {
   if (document.fullscreenElement || document.webkitFullscreenElement) {
@@ -1291,7 +1387,7 @@ document.addEventListener('fullscreenchange', function() {
 });
 
 window.addEventListener('load',()=>{
-  calYear=new Date().getFullYear();calMonth=new Date().getMonth();calSelDate=todayKey();
+  calYear=new Date().getFullYear();calMonth=new Date().getMonth();calSelDate=todayKey();setTimeout(renderTimerExamWidget,200);
   document.getElementById('topbar-date').textContent=new Date().toLocaleDateString([],{weekday:'long',month:'short',day:'numeric'});
   renderChips();populateChapterSelect();renderAll();
   openSubjects['physics']=true;renderChapterTree();
@@ -1424,7 +1520,7 @@ function delExam(idx){
   const sorted=[...calExams].sort((a,b)=>new Date(a.date)-new Date(b.date));
   const ex=sorted[idx];
   calExams=calExams.filter(e=>!(e.name===ex.name&&e.date===ex.date));
-  saveCalExams();renderCalendar();
+  saveCalExams();renderCalendar();renderTimerExamWidget();
 }
 function delExamByDate(ds,idx){
   const examsHere=calExams.filter(e=>e.date===ds);
@@ -1469,7 +1565,7 @@ function saveExam(){
   const date=document.getElementById('ei-date').value;
   if(!name||!date){showToast('Enter name and date!','error');return;}
   calExams.push({name,date,color:ePickColor});
-  saveCalExams();closeExamModal();renderCalendar();showToast('✅ Exam added: '+name);
+  saveCalExams();closeExamModal();renderCalendar();renderTimerExamWidget();showToast('✅ Exam added: '+name);
 }
 
 function buildSwatches(containerId,colors,picked,onPick){
@@ -1480,6 +1576,110 @@ function buildSwatches(containerId,colors,picked,onPick){
     s.onclick=()=>{picked=c;onPick(c);row.querySelectorAll('.swatch').forEach(x=>x.classList.remove('on'));s.classList.add('on');};
     row.appendChild(s);
   });
+}
+
+
+function renderTimerExamWidget(){
+  const wrap=document.getElementById('timer-exam-widget');
+  if(!wrap)return;
+  if(!calExams||!calExams.length){wrap.innerHTML='';return;}
+  const today=new Date();today.setHours(0,0,0,0);
+  const sorted=[...calExams].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  let html='<div class="tew-box"><div class="tew-hdr">🎯 Exam Countdown</div>';
+  sorted.forEach(ex=>{
+    const ed=new Date(ex.date+'T00:00:00');
+    const diff=Math.ceil((ed-today)/86400000);
+    const past=diff<0;
+    const isToday=diff===0;
+    html+=`<div class="tew-row">
+      <div class="tew-bar" style="background:${ex.color}"></div>
+      <div class="tew-info">
+        <div class="tew-name">${ex.name}</div>
+        <div class="tew-date">${ed.toLocaleDateString([],{day:'numeric',month:'short',year:'numeric'})}</div>
+      </div>
+      ${isToday?'<div class="tew-today">TODAY!</div>':past?'<div class="tew-past">Done ✓</div>':`<div style="text-align:right;flex-shrink:0;"><div class="tew-days">${diff}</div><div class="tew-days-label">days left</div></div>`}
+    </div>`;
+  });
+  html+='</div>';
+  wrap.innerHTML=html;
+}
+
+
+// ── SUBJECT TIME STATS ──
+function renderSubjectTimeStats(){
+  const fromVal=document.getElementById('stt-from').value;
+  const toVal=document.getElementById('stt-to').value;
+  const res=document.getElementById('stt-results');
+  if(!fromVal){res.innerHTML='<div class="stt-empty">Select a FROM date to see stats</div>';return;}
+  const from=new Date(fromVal+'T00:00:00').getTime();
+  const to=toVal?new Date(toVal+'T23:59:59').getTime():Date.now();
+  const filtered=sessions.filter(s=>s.startTime>=from&&s.startTime<=to);
+  if(!filtered.length){res.innerHTML='<div class="stt-empty">No sessions in this range</div>';return;}
+  const bySubj={};
+  filtered.forEach(s=>{
+    if(!bySubj[s.subject])bySubj[s.subject]=0;
+    bySubj[s.subject]+=(s.duration||0);
+  });
+  const sorted=Object.entries(bySubj).sort((a,b)=>b[1]-a[1]);
+  const max=sorted[0][1];
+  let html='<div class="stt-results">';
+  sorted.forEach(([sid,secs])=>{
+    const subj=SUBJECTS.find(s=>s.id===sid)||{name:sid,color:'#666',icon:'📚'};
+    const pct=max>0?Math.round(secs/max*100):0;
+    html+=`<div class="stt-row">
+      <div class="stt-dot" style="background:${subj.color}"></div>
+      <div class="stt-name">${subj.icon||'📚'} ${subj.name}</div>
+      <div class="stt-track"><div class="stt-fill" style="width:${pct}%;background:${subj.color}"></div></div>
+      <div class="stt-val">${fmtDur(secs)}</div>
+    </div>`;
+  });
+  const totalSecs=filtered.reduce((s,x)=>s+(x.duration||0),0);
+  html+=`<div style="display:flex;justify-content:space-between;padding:10px 0 2px;border-top:1px solid var(--border);margin-top:6px;">
+    <span style="font-size:11px;color:var(--text3);">${filtered.length} sessions in range</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Total: ${fmtDur(totalSecs)}</span>
+  </div>`;
+  html+='</div>';
+  res.innerHTML=html;
+}
+
+function sttSetExamRange(){
+  if(!calExams.length){showToast('No exams added yet! Add from Calendar','error');return;}
+  // Show a quick picker — build a simple select
+  const today=todayKey();
+  const opts=calExams.map((e,i)=>`<option value="${i}">${e.name} — ${e.date}</option>`).join('');
+  const sel=document.createElement('select');
+  sel.className='stt-date-input';sel.style.minWidth='220px';
+  sel.innerHTML='<option value="">Pick exam…</option>'+opts;
+  sel.onchange=()=>{
+    const idx=parseInt(sel.value);
+    if(isNaN(idx))return;
+    const ex=calExams[idx];
+    // Set from = today, to = exam date (or show from beginning if exam is past)
+    const examDate=new Date(ex.date+'T00:00:00');
+    const now=new Date();now.setHours(0,0,0,0);
+    const diff=Math.ceil((examDate-now)/86400000);
+    // Start = earliest session or 30 days ago, end = exam date
+    const fromDate=new Date(Math.min(...sessions.map(s=>s.startTime),Date.now()-(90*86400000)));
+    document.getElementById('stt-from').value=fromDate.toLocaleDateString('sv-SE');
+    document.getElementById('stt-to').value=ex.date;
+    sel.remove();
+    renderSubjectTimeStats();
+    showToast(`Showing stats up to ${ex.name} (${diff<0?'past':diff+'d left'})`);
+  };
+  document.querySelector('.stt-controls').appendChild(sel);
+  sel.focus();
+}
+
+// Init stt dates on backup view open
+function initSttDates(){
+  const to=document.getElementById('stt-to');
+  const from=document.getElementById('stt-from');
+  if(!to.value) to.value=todayKey();
+  if(!from.value){
+    const d=new Date();d.setDate(d.getDate()-7);
+    from.value=d.toLocaleDateString('sv-SE');
+  }
+  renderSubjectTimeStats();
 }
 
 </script>
